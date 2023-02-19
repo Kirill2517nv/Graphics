@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include "Renderer/ShaderProgram.h"
 
 int g_windowSizeX = 640;
 int g_windowSizeY = 480;
@@ -93,24 +94,16 @@ int main(void)
 	
 	
 	glClearColor(0, 1, 1, 1); 
-    // create vertex shader
-    GLuint vs = glCreateShader(GL_VERTEX_SHADER); // shader identificator
-    glShaderSource(vs, 1, &vertex_shader, nullptr); // code for shader
-    glCompileShader(vs); // compile code
+    
+    std::string vertexShader(vertex_shader);
+    std::string fragmentShader(fragment_shader);
+    Renderer::ShaderProgram shaderProgram (vertexShader, fragmentShader);
+    if (!shaderProgram.isCompiled())
+    {
+        std::cerr << "Can't create shader program!" << std::endl;
+        return -1;
+    }
 
-    // create fragment shader
-    GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fs, 1, &fragment_shader, nullptr);
-    glCompileShader(fs);
-     
-    //generate shader program for linking vs with fs
-    GLuint shader_program = glCreateProgram();
-    glAttachShader(shader_program, vs);
-    glAttachShader(shader_program, fs);
-    glLinkProgram(shader_program); 
-
-    glDeleteShader(vs);
-    glDeleteShader(fs);
 
     //vbo - vertex buffer object
     GLuint points_vbo = 0;
@@ -143,7 +136,7 @@ int main(void)
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glUseProgram(shader_program);
+        shaderProgram.use();
         glBindVertexArray(vao);
         glDrawArrays(GL_TRIANGLES, 0, 3); // рисуем вершины начиная с нулевого; всего рисовать три вершины
 
