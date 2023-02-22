@@ -4,6 +4,7 @@ set(ENGINE_PROJECT_NAME EngineCore)
 
 set(ENGINE_PUBLIC_INCLUDES
 	includes/EngineCore/Application.h
+	includes/EngineCore/Log.h
 )
 
 set(ENGINE_PRIVATE_SOURCES

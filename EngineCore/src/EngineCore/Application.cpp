@@ -1,12 +1,16 @@
-
 #include <iostream>
 #include <GLFW/glfw3.h>
 #include "EngineCore/Application.h"
+#include "EngineCore/Log.h"
 
 namespace Engine {
 
 	Application::Application() {
 
+        LOG_INFO("TEST INFO MESSAGE");
+        LOG_WARN("TEST WARN MESSAGE");
+        LOG_ERROR("TEST ERROR MESSAGE");
+        LOG_CRITICAL("TEST CRITICAL MESSAGE");
 	}
 
 	Application::~Application() {

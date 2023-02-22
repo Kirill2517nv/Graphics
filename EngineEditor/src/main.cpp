@@ -4,7 +4,7 @@
 
 class App : public Engine::Application {
 	virtual void onUpdate() override {
-		std::cout << "Update Frame: " << frame++ << std::endl;
+		//std::cout << "Update Frame: " << frame++ << std::endl;
 	}
 
 	int frame = 0;
