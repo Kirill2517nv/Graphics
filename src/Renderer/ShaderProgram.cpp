@@ -61,7 +61,7 @@ Renderer::ShaderProgram& Renderer::ShaderProgram::operator=(ShaderProgram&& shad
 	return *this;
 }
 
-Renderer::ShaderProgram::ShaderProgram(ShaderProgram&& shaderProgram)
+Renderer::ShaderProgram::ShaderProgram(ShaderProgram&& shaderProgram) noexcept
 {
 	m_ID = shaderProgram.m_ID;
 	m_isCompiled = shaderProgram.m_isCompiled;
