@@ -21,7 +21,7 @@ namespace Engine {
 	private:
 		std::unique_ptr<class Window> mpWindow;
 		EventDispatcher mEventDispatcher;
-		bool mbCloseWindow;
+		bool mbCloseWindow = false;
 
 	};
 }

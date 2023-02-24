@@ -32,6 +32,13 @@ namespace Engine {
 			}
 		);
 
+		mEventDispatcher.addEventListener<EventWindowClose>(
+			[&](EventWindowClose& event) {
+				LOG_INFO("[WindowClose]");
+				mbCloseWindow = true;
+			}
+		);
+
 
 		mpWindow->set_event_callback(
 			[&](BaseEvent& event) {
@@ -39,10 +46,11 @@ namespace Engine {
 			}
 		);
 
-		while (true) {
+		while (!mbCloseWindow) {
 			mpWindow->onUpdate();
 			onUpdate();
 		}
+		mpWindow = nullptr;
 
 		return 0;
 	}

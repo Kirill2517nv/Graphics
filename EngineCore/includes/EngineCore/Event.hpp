@@ -7,7 +7,7 @@ namespace Engine {
 
 	enum class EventType {
 		WindowResize = 0,
-		WindiwClose,
+		WindowClose,
 
 		KeyPressed,
 		KeyReleased,
@@ -83,6 +83,17 @@ namespace Engine {
 		unsigned int height;
 
 		static const EventType type = EventType::WindowResize;
+	};
+
+	struct EventWindowClose : public BaseEvent {
+		
+
+		virtual EventType getType() const override {
+			return type;
+		}
+
+
+		static const EventType type = EventType::WindowClose;
 	};
 
 

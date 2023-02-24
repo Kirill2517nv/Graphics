@@ -63,6 +63,14 @@ namespace Engine {
                 data.eventCallbackFn(event);
             });
 
+        glfwSetWindowCloseCallback(mpWindow,
+            [](GLFWwindow* pWindow) {
+                WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
+
+                EventWindowClose event;
+                data.eventCallbackFn(event);
+            });
+
 		return 0;
 	}
 
