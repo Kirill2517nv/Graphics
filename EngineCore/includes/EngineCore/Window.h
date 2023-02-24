@@ -1,12 +1,14 @@
 #pragma once
 #include <string>
-class GLFWWindow;
+struct GLFWwindow;
 
 namespace Engine {
+
 	class Window {
+
 	public:
 		Window(std::string title, const unsigned int width, const unsigned int height);
-		virtual ~Window();
+		~Window();
 
 		Window(const Window&) = delete;
 		Window(Window&&) = delete;
@@ -21,7 +23,7 @@ namespace Engine {
 		int init();
 		void shutdown();
 
-		GLFWWindow* pWindow;
+		GLFWwindow* mpWindow;
 		std::string mTitle;
 		unsigned int mWidth;
 		unsigned int mHeight;
