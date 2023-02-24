@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "EngineCore/Events.hpp"
+#include "EngineCore/Event.hpp"
 #include <functional>
 struct GLFWwindow;
 
@@ -8,7 +8,7 @@ namespace Engine {
 
 	class Window {
 	public:
-		using EventCallbackFn = std::function<void(Event&)>;
+		using EventCallbackFn = std::function<void(BaseEvent&)>;
 		Window(std::string title, const unsigned int width, const unsigned int height);
 		~Window();
 

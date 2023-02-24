@@ -19,6 +19,8 @@ namespace Engine {
 		virtual void onUpdate() {};
 	private:
 		std::unique_ptr<class Window> mpWindow;
+		EventDispatcher mEventDispatcher;
+		bool mbCloseWindow;
 
 	};
 }
