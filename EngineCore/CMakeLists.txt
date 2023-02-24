@@ -5,6 +5,7 @@ set(ENGINE_PROJECT_NAME EngineCore)
 set(ENGINE_PUBLIC_INCLUDES
 	includes/EngineCore/Application.h
 	includes/EngineCore/Log.h
+	includes/EngineCore/Event.hpp
 )
 
 set(ENGINE_PRIVATE_INCLUDES

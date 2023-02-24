@@ -9,14 +9,12 @@ namespace Engine {
     static bool s_GLFW_initialized = false;
 
 	Window::Window(std::string title, const unsigned int width, const unsigned int height) 
-		  : mTitle(std::move(title)),
-		    mWidth(width),
-		    mHeight(height) {
+		  : mData({ std::move(title), width, height }) {
 		int resultCode = init();
 	}
 
 	int Window::init() {
-        LOG_INFO("Creating window '{0}' with size {1} x {2}", mTitle, mWidth, mHeight);
+        LOG_INFO("Creating window '{0}' with size {1} x {2}", mData.title, mData.width, mData.height);
 
         if (!s_GLFW_initialized) {
             if (!glfwInit()) {
@@ -26,10 +24,10 @@ namespace Engine {
             s_GLFW_initialized = true;
         }
         /* Create a windowed mode window and its OpenGL context */
-        mpWindow = glfwCreateWindow(mWidth, mHeight, mTitle.c_str(), nullptr, nullptr);
+        mpWindow = glfwCreateWindow(mData.width, mData.height, mData.title.c_str(), nullptr, nullptr);
         if (!mpWindow)
         {
-            LOG_CRITICAL("Can't create window '{0}' with size {1} x {2}", mTitle, mWidth, mHeight);
+            LOG_CRITICAL("Can't create window '{0}' with size {1} x {2}", mData.title, mData.width, mData.height);
             glfwTerminate();
             return -2;
         }
@@ -43,6 +41,23 @@ namespace Engine {
             LOG_CRITICAL("Failed to initialize GLAD");
             return -3;
         }
+
+        glfwSetWindowUserPointer(mpWindow, &mData);
+
+        glfwSetWindowSizeCallback(mpWindow,
+            [](GLFWwindow* pWindow, int width, int height) {
+                LOG_INFO("New size {0} x {1}", width, height);
+
+                WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
+                data.width = width;
+                data.height = height;
+
+                Event event;
+                event.width = width;
+                event.height = height;
+                data.eventCallbackFn(event);
+            }
+        );
 
 		return 0;
 	}

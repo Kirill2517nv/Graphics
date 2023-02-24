@@ -17,6 +17,11 @@ namespace Engine {
 	int Application::start(unsigned int window_width, unsigned int window_height, const char* title)
 	{
 		mpWindow = std::make_unique<Window>(title, window_width, window_height);
+		mpWindow->set_event_callback(
+			[](Event& event) {
+				LOG_INFO("[EVENT] Change size to {0} x {1}", event.width, event.height);
+			}
+		);
 
 		while (true) {
 			mpWindow->onUpdate();
