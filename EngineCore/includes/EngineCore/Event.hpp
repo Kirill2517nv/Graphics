@@ -25,6 +25,7 @@ namespace Engine {
 		virtual EventType getType() const = 0;
 	};
 
+
 	class EventDispatcher {
 	public:
 		template<typename EventType>

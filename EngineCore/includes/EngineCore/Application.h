@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include "EngineCore/Event.hpp"
 
 namespace Engine {
 	class Application {

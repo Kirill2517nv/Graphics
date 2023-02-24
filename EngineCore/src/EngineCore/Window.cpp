@@ -53,8 +53,7 @@ namespace Engine {
 
                 EventWindowResize event(width, height);
                 data.eventCallbackFn(event);
-            }
-        );
+            });
 
         glfwSetCursorPosCallback(mpWindow,
             [](GLFWwindow* pWindow, double x, double y) {
