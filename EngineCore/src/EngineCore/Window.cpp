@@ -4,6 +4,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <imgui/imgui.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
+
 namespace Engine {
 
     static bool s_GLFW_initialized = false;
@@ -11,6 +14,10 @@ namespace Engine {
 	Window::Window(std::string title, const unsigned int width, const unsigned int height) 
 		  : mData({ std::move(title), width, height }) {
 		int resultCode = init();
+
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGui_ImplOpenGL3_Init();
 	}
 
 	int Window::init() {
@@ -82,10 +89,26 @@ namespace Engine {
         glClearColor(0.6, 0.2, 0.6, 0);
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
+
+        ImGuiIO& io = ImGui::GetIO();
+        io.DisplaySize.x = static_cast<float>(getWidth());
+        io.DisplaySize.y = static_cast<float>(getHeight());
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::ShowDemoWindow();
+
+        ImGui::Render();
+
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         /* Swap front and back buffers */
         glfwSwapBuffers(mpWindow);
         /* Poll for and process events */
         glfwPollEvents();
+
+
     }
 
 	void Window::shutdown() {

@@ -18,8 +18,8 @@ namespace Engine {
 		Window& operator=(Window&&) = delete;
 
 		void onUpdate();
-		unsigned int get_width() const { return mData.width; };
-		unsigned int get_height() const { return mData.height; };
+		unsigned int getWidth() const { return mData.width; };
+		unsigned int getHeight() const { return mData.height; };
 
 		void set_event_callback(const EventCallbackFn& callback) {
 			mData.eventCallbackFn = callback;
