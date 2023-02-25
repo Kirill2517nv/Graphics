@@ -6,6 +6,7 @@
 
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
+#include <imgui/backends/imgui_impl_glfw.h>
 
 namespace Engine {
 
@@ -18,6 +19,7 @@ namespace Engine {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGui_ImplOpenGL3_Init();
+        ImGui_ImplGlfw_InitForOpenGL(mpWindow, true);
 	}
 
 	int Window::init() {
@@ -65,7 +67,7 @@ namespace Engine {
         glfwSetCursorPosCallback(mpWindow,
             [](GLFWwindow* pWindow, double x, double y) {
                 WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
-
+                
                 EventMouseMoved event(x, y);
                 data.eventCallbackFn(event);
             });
@@ -86,7 +88,7 @@ namespace Engine {
     }
 
     void Window::onUpdate() {
-        glClearColor(0.6, 0.2, 0.6, 0);
+        glClearColor(mBackgroundColor[0], mBackgroundColor[1], mBackgroundColor[2], mBackgroundColor[3]);
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -95,9 +97,17 @@ namespace Engine {
         io.DisplaySize.y = static_cast<float>(getHeight());
 
         ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+
         ImGui::NewFrame();
 
         ImGui::ShowDemoWindow();
+
+
+        ImGui::Begin("Background Color Window");
+        ImGui::ColorEdit4("Bacground color", mBackgroundColor);
+        ImGui::End();
+
 
         ImGui::Render();
 
