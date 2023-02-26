@@ -1,12 +1,16 @@
 #pragma once
 #include <string>
-class GLFWWindow;
+#include "EngineCore/Event.hpp"
+#include <functional>
+struct GLFWwindow;
 
 namespace Engine {
+
 	class Window {
 	public:
+		using EventCallbackFn = std::function<void(BaseEvent&)>;
 		Window(std::string title, const unsigned int width, const unsigned int height);
-		virtual ~Window();
+		~Window();
 
 		Window(const Window&) = delete;
 		Window(Window&&) = delete;
@@ -14,16 +18,25 @@ namespace Engine {
 		Window& operator=(Window&&) = delete;
 
 		void onUpdate();
-		unsigned int get_width() const { return mWidth; };
-		unsigned int get_height() const { return mHeight; };
+		unsigned int getWidth() const { return mData.width; };
+		unsigned int getHeight() const { return mData.height; };
+
+		void set_event_callback(const EventCallbackFn& callback) {
+			mData.eventCallbackFn = callback;
+		}
 
 	private:
+		struct WindowData {
+			std::string title;
+			unsigned int width;
+			unsigned int height;
+			EventCallbackFn eventCallbackFn;
+		};
 		int init();
 		void shutdown();
 
-		GLFWWindow* pWindow;
-		std::string mTitle;
-		unsigned int mWidth;
-		unsigned int mHeight;
+		GLFWwindow* mpWindow = nullptr;
+		WindowData mData;
+		float mBackgroundColor[4] = { 1.0f, 0.0f, 0.0f, 0.0f };
 	};
 }
