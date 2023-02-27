@@ -1,6 +1,7 @@
 #include "EngineCore/Window.h"
 #include "EngineCore/Log.h"
 #include "EngineCore/Rendering/OpenGL/ShaderProgram.hpp"
+#include "EngineCore/Rendering/OpenGL/VertexBuffer.hpp"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -44,6 +45,8 @@ namespace Engine {
         "}";
 
     std::unique_ptr<ShaderProgram> pShaderProgram;
+    std::unique_ptr<VertexBuffer> pPointsVbo;
+    std::unique_ptr<VertexBuffer> pColorsVbo;
     GLuint vao;
 
 	Window::Window(std::string title, const unsigned int width, const unsigned int height) 
@@ -126,42 +129,17 @@ namespace Engine {
             return false;
         }
 
-
-        /*GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vs, 1, &vertexShader, nullptr);
-        glCompileShader(vs);
-
-        GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fs, 1, &fragmentShader, nullptr);
-        glCompileShader(fs);
-
-        shaderProgram = glCreateProgram();
-        glAttachShader(shaderProgram, vs);
-        glAttachShader(shaderProgram, fs);
-        glLinkProgram(shaderProgram);
-
-        glDeleteShader(vs);
-        glDeleteShader(fs);*/
-
-        GLuint pointsVbo = 0;
-        glGenBuffers(1, &pointsVbo);
-        glBindBuffer(GL_ARRAY_BUFFER, pointsVbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(points), &points, GL_STATIC_DRAW);
-
-        GLuint colorsVbo = 0;
-        glGenBuffers(1, &colorsVbo);
-        glBindBuffer(GL_ARRAY_BUFFER, colorsVbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(colors), &colors, GL_STATIC_DRAW);
-        
+        pPointsVbo = std::make_unique<VertexBuffer>(points, sizeof(points));
+        pColorsVbo = std::make_unique<VertexBuffer>(colors, sizeof(colors));
         glGenVertexArrays(1, &vao);
         glBindVertexArray(vao);
 
         glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, pointsVbo);
+        pPointsVbo->bind();
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
         glEnableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, colorsVbo);
+        pColorsVbo->bind();
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
 		return 0;
