@@ -12,6 +12,7 @@ set(ENGINE_PRIVATE_INCLUDES
 	includes/EngineCore/Window.h
 	src/EngineCore/Rendering/OpenGL/ShaderProgram.hpp
 	src/EngineCore/Rendering/OpenGL/VertexBuffer.hpp
+	src/EngineCore/Rendering/OpenGL/VertexArray.hpp
 )
 
 set(ENGINE_PRIVATE_SOURCES
@@ -19,6 +20,7 @@ set(ENGINE_PRIVATE_SOURCES
 	src/EngineCore/Window.cpp
 	src/EngineCore/Rendering/OpenGL/ShaderProgram.cpp
 	src/EngineCore/Rendering/OpenGL/VertexBuffer.cpp
+	src/EngineCore/Rendering/OpenGL/VertexArray.cpp
 )
 
 set(ENGINE_ALL_SOURCES

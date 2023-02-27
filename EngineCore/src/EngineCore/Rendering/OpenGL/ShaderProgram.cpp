@@ -81,7 +81,7 @@ namespace Engine {
 		glUseProgram(0);
 	}
 
-	ShaderProgram& ShaderProgram::operator=(ShaderProgram&& shaderProgram) {
+	ShaderProgram& ShaderProgram::operator=(ShaderProgram&& shaderProgram) noexcept {
 		glDeleteProgram(mId);
 		mId = shaderProgram.mId;
 		mIsCompiled = shaderProgram.mIsCompiled;
@@ -91,7 +91,7 @@ namespace Engine {
 		return *this;
 	}
 
-	ShaderProgram::ShaderProgram(ShaderProgram&& shaderProgram) {
+	ShaderProgram::ShaderProgram(ShaderProgram&& shaderProgram) noexcept {
 		mId = shaderProgram.mId;
 		mIsCompiled = shaderProgram.mIsCompiled;
 

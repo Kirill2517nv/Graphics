@@ -5,8 +5,8 @@ namespace Engine {
 	class ShaderProgram {
 	public:
 		ShaderProgram(const char* vertexShaderSrc, const char* fragmentShaderSrc);
-		ShaderProgram(ShaderProgram&&);
-		ShaderProgram& operator=(ShaderProgram&&);
+		ShaderProgram(ShaderProgram&&) noexcept;
+		ShaderProgram& operator=(ShaderProgram&&) noexcept;
 		~ShaderProgram();
 
 		ShaderProgram() = delete;

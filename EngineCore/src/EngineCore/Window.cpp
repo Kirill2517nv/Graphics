@@ -2,6 +2,7 @@
 #include "EngineCore/Log.h"
 #include "EngineCore/Rendering/OpenGL/ShaderProgram.hpp"
 #include "EngineCore/Rendering/OpenGL/VertexBuffer.hpp"
+#include "EngineCore/Rendering/OpenGL/VertexArray.hpp"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -47,7 +48,7 @@ namespace Engine {
     std::unique_ptr<ShaderProgram> pShaderProgram;
     std::unique_ptr<VertexBuffer> pPointsVbo;
     std::unique_ptr<VertexBuffer> pColorsVbo;
-    GLuint vao;
+    std::unique_ptr<VertexArray> pVao;
 
 	Window::Window(std::string title, const unsigned int width, const unsigned int height) 
 		  : mData({ std::move(title), width, height }) {
@@ -131,16 +132,10 @@ namespace Engine {
 
         pPointsVbo = std::make_unique<VertexBuffer>(points, sizeof(points));
         pColorsVbo = std::make_unique<VertexBuffer>(colors, sizeof(colors));
-        glGenVertexArrays(1, &vao);
-        glBindVertexArray(vao);
+        pVao = std::make_unique<VertexArray>();
 
-        glEnableVertexAttribArray(0);
-        pPointsVbo->bind();
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-        glEnableVertexAttribArray(1);
-        pColorsVbo->bind();
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+        pVao->add_buffer(*pPointsVbo);
+        pVao->add_buffer(*pColorsVbo);
 
 		return 0;
 	}
@@ -155,7 +150,7 @@ namespace Engine {
         glClear(GL_COLOR_BUFFER_BIT);
 
         pShaderProgram->bind();
-        glBindVertexArray(vao);
+        pVao->bind();
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
 
