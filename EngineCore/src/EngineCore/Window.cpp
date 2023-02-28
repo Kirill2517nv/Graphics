@@ -2,6 +2,7 @@
 #include "EngineCore/Log.h"
 #include "EngineCore/Rendering/OpenGL/ShaderProgram.hpp"
 #include "EngineCore/Rendering/OpenGL/VertexBuffer.hpp"
+#include "EngineCore/Rendering/OpenGL/IndexBuffer.h"
 #include "EngineCore/Rendering/OpenGL/VertexArray.hpp"
 
 #include <glad/glad.h>
@@ -15,22 +16,25 @@ namespace Engine {
 
     static bool s_GLFW_initialized = false;
 
-    GLfloat points[] = {
-        0.0f, 0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        -0.5f, -0.5f, 0.0f
-    };
-
-    GLfloat colors[] = {
-        1.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 1.0f
-    };
-
     GLfloat positionsColors[] = {
-        0.0f,  0.5f, 0.0f,    1.0f, 1.0f, 0.0f,
-        0.5f, -0.5f, 0.0f,    0.0f, 1.0f, 1.0f,
-       -0.5f, -0.5f, 0.0f,    1.0f, 0.0f, 1.0f
+       -0.5f,  -0.5f, 0.0f,    1.0f, 1.0f, 0.0f,
+        0.5f,  -0.5f, 0.0f,    0.0f, 1.0f, 1.0f,
+       -0.5f,   0.5f, 0.0f,    1.0f, 0.0f, 1.0f,
+
+        0.5f,  0.5f, 0.0f,    1.0f, 0.0f, 0.0f,
+       -0.5f,  0.5f, 0.0f,    1.0f, 0.0f, 1.0f,
+        0.5f, -0.5f, 0.0f,    0.0f, 1.0f, 1.0f
+    };
+
+    GLfloat positionsColors2[] = {
+       -0.5f,  -0.5f, 0.0f,    1.0f, 1.0f, 0.0f,
+        0.5f,  -0.5f, 0.0f,    0.0f, 1.0f, 1.0f,
+       -0.5f,   0.5f, 0.0f,    1.0f, 0.0f, 1.0f,
+        0.5f,   0.5f, 0.0f,    1.0f, 0.0f, 0.0f
+    };
+
+    GLuint indices[] = {
+        0, 1, 2, 3, 2, 1
     };
 
     const char* vertexShader =
@@ -52,12 +56,9 @@ namespace Engine {
         "}";
 
     std::unique_ptr<ShaderProgram> pShaderProgram;
-    std::unique_ptr<VertexBuffer> pPointsVbo;
-    std::unique_ptr<VertexBuffer> pColorsVbo;
-    std::unique_ptr<VertexArray> pVao2buffers;
-
     std::unique_ptr<VertexBuffer> pPositionsColorsVbo;
-    std::unique_ptr<VertexArray> pVao1buffer;
+    std::unique_ptr<IndexBuffer> pIndexBuffer;
+    std::unique_ptr<VertexArray> pVao;
 
 	Window::Window(std::string title, const unsigned int width, const unsigned int height) 
 		  : mData({ std::move(title), width, height }) {
@@ -138,26 +139,18 @@ namespace Engine {
         if (!pShaderProgram->isCompiled()) {
             return false;
         }
-
-        BufferLayout bufferLayout1vec3{ ShaderDataType::Float3 };
-
-        pVao2buffers = std::make_unique<VertexArray>();
-        pPointsVbo = std::make_unique<VertexBuffer>(points, sizeof(points), bufferLayout1vec3);
-        pColorsVbo = std::make_unique<VertexBuffer>(colors, sizeof(colors), bufferLayout1vec3);
-
-        pVao2buffers->add_buffer(*pPointsVbo);
-        pVao2buffers->add_buffer(*pColorsVbo);
-
         
         BufferLayout bufferLayout2vec3{
             ShaderDataType::Float3,
             ShaderDataType::Float3
         };
         
-        pVao1buffer = std::make_unique<VertexArray>();
+        pVao= std::make_unique<VertexArray>();
         pPositionsColorsVbo = std::make_unique<VertexBuffer>(positionsColors, sizeof(positionsColors), bufferLayout2vec3);
+        pIndexBuffer = std::make_unique<IndexBuffer>(indices, sizeof(indices) / sizeof(GLuint));
 
-        pVao1buffer->add_buffer(*pPositionsColorsVbo);
+        pVao->add_vertex_buffer(*pPositionsColorsVbo); // loading pos and colors to VAO
+        pVao->set_index_buffer(*pIndexBuffer);
 
 		return 0;
 	}
@@ -186,23 +179,10 @@ namespace Engine {
 
         ImGui::Begin("Background Color Window");
         ImGui::ColorEdit4("Background color", mBackgroundColor);
-        
-        static bool use2Buffers = true;
 
-        ImGui::Checkbox("2 Buffers", &use2Buffers);
-
-        if (use2Buffers)
-        {
-            pShaderProgram->bind();
-            pVao2buffers->bind();
-            glDrawArrays(GL_TRIANGLES, 0, 3);
-        }
-        else
-        {
-            pShaderProgram->bind();
-            pVao1buffer->bind();
-            glDrawArrays(GL_TRIANGLES, 0, 3);
-        }
+        pShaderProgram->bind();
+        pVao->bind();
+        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(pVao->getIndicesCount()), GL_UNSIGNED_INT, nullptr);
         ImGui::End();
 
 
