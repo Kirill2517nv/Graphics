@@ -1,5 +1,8 @@
 #include "EngineCore/Window.h"
 #include "EngineCore/Log.h"
+#include "EngineCore/Rendering/OpenGL/ShaderProgram.hpp"
+#include "EngineCore/Rendering/OpenGL/VertexBuffer.hpp"
+#include "EngineCore/Rendering/OpenGL/VertexArray.hpp"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -11,6 +14,41 @@
 namespace Engine {
 
     static bool s_GLFW_initialized = false;
+
+    GLfloat points[] = {
+        0.0f, 0.5f, 0.0f,
+        0.5f, -0.5f, 0.0f,
+        -0.5f, -0.5f, 0.0f
+    };
+
+    GLfloat colors[] = {
+        1.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 1.0f
+    };
+
+    const char* vertexShader =
+        "#version 460\n"
+        "layout(location = 0) in vec3 vertexPosition;"
+        "layout(location = 1) in vec3 vertexColor;"
+        "out vec3 color;"
+        "void main() {"
+        "    color = vertexColor;"
+        "    gl_Position = vec4(vertexPosition, 1.0);"
+        "}";
+
+    const char* fragmentShader =
+        "#version 460\n"
+        "in vec3 color;"
+        "out vec4 fragColor;"
+        "void main() {"
+        "    fragColor = vec4(color, 1.0);"
+        "}";
+
+    std::unique_ptr<ShaderProgram> pShaderProgram;
+    std::unique_ptr<VertexBuffer> pPointsVbo;
+    std::unique_ptr<VertexBuffer> pColorsVbo;
+    std::unique_ptr<VertexArray> pVao;
 
 	Window::Window(std::string title, const unsigned int width, const unsigned int height) 
 		  : mData({ std::move(title), width, height }) {
@@ -80,6 +118,25 @@ namespace Engine {
                 data.eventCallbackFn(event);
             });
 
+        glfwSetFramebufferSizeCallback(mpWindow,
+            [](GLFWwindow* pWindow, int width, int height) {
+                glViewport(0, 0, width, height);
+            });
+
+
+
+        pShaderProgram = std::make_unique<ShaderProgram>(vertexShader, fragmentShader);
+        if (!pShaderProgram->isCompiled()) {
+            return false;
+        }
+
+        pPointsVbo = std::make_unique<VertexBuffer>(points, sizeof(points));
+        pColorsVbo = std::make_unique<VertexBuffer>(colors, sizeof(colors));
+        pVao = std::make_unique<VertexArray>();
+
+        pVao->add_buffer(*pPointsVbo);
+        pVao->add_buffer(*pColorsVbo);
+
 		return 0;
 	}
 
@@ -91,6 +148,13 @@ namespace Engine {
         glClearColor(mBackgroundColor[0], mBackgroundColor[1], mBackgroundColor[2], mBackgroundColor[3]);
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
+
+        pShaderProgram->bind();
+        pVao->bind();
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
+
+
 
         ImGuiIO& io = ImGui::GetIO();
         io.DisplaySize.x = static_cast<float>(getWidth());
@@ -105,7 +169,7 @@ namespace Engine {
 
 
         ImGui::Begin("Background Color Window");
-        ImGui::ColorEdit4("Bacground color", mBackgroundColor);
+        ImGui::ColorEdit4("Background color", mBackgroundColor);
         ImGui::End();
 
 
