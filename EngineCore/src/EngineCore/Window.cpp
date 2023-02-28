@@ -27,6 +27,12 @@ namespace Engine {
         0.0f, 0.0f, 1.0f
     };
 
+    GLfloat positionsColors[] = {
+        0.0f,  0.5f, 0.0f,    1.0f, 1.0f, 0.0f,
+        0.5f, -0.5f, 0.0f,    0.0f, 1.0f, 1.0f,
+       -0.5f, -0.5f, 0.0f,    1.0f, 0.0f, 1.0f
+    };
+
     const char* vertexShader =
         "#version 460\n"
         "layout(location = 0) in vec3 vertexPosition;"
@@ -48,7 +54,10 @@ namespace Engine {
     std::unique_ptr<ShaderProgram> pShaderProgram;
     std::unique_ptr<VertexBuffer> pPointsVbo;
     std::unique_ptr<VertexBuffer> pColorsVbo;
-    std::unique_ptr<VertexArray> pVao;
+    std::unique_ptr<VertexArray> pVao2buffers;
+
+    std::unique_ptr<VertexBuffer> pPositionsColorsVbo;
+    std::unique_ptr<VertexArray> pVao1buffer;
 
 	Window::Window(std::string title, const unsigned int width, const unsigned int height) 
 		  : mData({ std::move(title), width, height }) {
@@ -60,7 +69,7 @@ namespace Engine {
         ImGui_ImplGlfw_InitForOpenGL(mpWindow, true);
 	}
 
-	int Window::init() {
+    int Window::init() {
         LOG_INFO("Creating window '{0}' with size {1} x {2}", mData.title, mData.width, mData.height);
 
         if (!s_GLFW_initialized) {
@@ -105,7 +114,7 @@ namespace Engine {
         glfwSetCursorPosCallback(mpWindow,
             [](GLFWwindow* pWindow, double x, double y) {
                 WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
-                
+
                 EventMouseMoved event(x, y);
                 data.eventCallbackFn(event);
             });
@@ -130,12 +139,25 @@ namespace Engine {
             return false;
         }
 
-        pPointsVbo = std::make_unique<VertexBuffer>(points, sizeof(points));
-        pColorsVbo = std::make_unique<VertexBuffer>(colors, sizeof(colors));
-        pVao = std::make_unique<VertexArray>();
+        BufferLayout bufferLayout1vec3{ ShaderDataType::Float3 };
 
-        pVao->add_buffer(*pPointsVbo);
-        pVao->add_buffer(*pColorsVbo);
+        pVao2buffers = std::make_unique<VertexArray>();
+        pPointsVbo = std::make_unique<VertexBuffer>(points, sizeof(points), bufferLayout1vec3);
+        pColorsVbo = std::make_unique<VertexBuffer>(colors, sizeof(colors), bufferLayout1vec3);
+
+        pVao2buffers->add_buffer(*pPointsVbo);
+        pVao2buffers->add_buffer(*pColorsVbo);
+
+        
+        BufferLayout bufferLayout2vec3{
+            ShaderDataType::Float3,
+            ShaderDataType::Float3
+        };
+        
+        pVao1buffer = std::make_unique<VertexArray>();
+        pPositionsColorsVbo = std::make_unique<VertexBuffer>(positionsColors, sizeof(positionsColors), bufferLayout2vec3);
+
+        pVao1buffer->add_buffer(*pPositionsColorsVbo);
 
 		return 0;
 	}
@@ -149,12 +171,6 @@ namespace Engine {
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
 
-        pShaderProgram->bind();
-        pVao->bind();
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-
-
-
 
         ImGuiIO& io = ImGui::GetIO();
         io.DisplaySize.x = static_cast<float>(getWidth());
@@ -165,11 +181,28 @@ namespace Engine {
 
         ImGui::NewFrame();
 
-        ImGui::ShowDemoWindow();
+        //ImGui::ShowDemoWindow();
 
 
         ImGui::Begin("Background Color Window");
         ImGui::ColorEdit4("Background color", mBackgroundColor);
+        
+        static bool use2Buffers = true;
+
+        ImGui::Checkbox("2 Buffers", &use2Buffers);
+
+        if (use2Buffers)
+        {
+            pShaderProgram->bind();
+            pVao2buffers->bind();
+            glDrawArrays(GL_TRIANGLES, 0, 3);
+        }
+        else
+        {
+            pShaderProgram->bind();
+            pVao1buffer->bind();
+            glDrawArrays(GL_TRIANGLES, 0, 3);
+        }
         ImGui::End();
 
 

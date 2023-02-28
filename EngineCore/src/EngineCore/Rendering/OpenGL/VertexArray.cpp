@@ -41,10 +41,21 @@ namespace Engine {
         bind();
         vertex_buffer.bind();
 
-        //TODO - use buffer layout
-        glEnableVertexAttribArray(m_elements_count);
-        glVertexAttribPointer(m_elements_count, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+        for (const BufferElement& currElement : vertex_buffer.getLayout().getElemets()) {
 
-        ++m_elements_count;
+            glEnableVertexAttribArray(m_elements_count);
+            glVertexAttribPointer(
+                m_elements_count,
+                static_cast<GLint>(currElement.componentCount),
+                currElement.componentType,
+                GL_FALSE,
+                static_cast<GLsizei>(vertex_buffer.getLayout().getStride()),
+                reinterpret_cast<const void*>(currElement.offset)
+            );
+            ++m_elements_count;
+        }
+
+        //TODO - use buffer layout
+
     }
 }
