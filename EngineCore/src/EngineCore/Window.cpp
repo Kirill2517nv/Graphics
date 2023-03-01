@@ -198,6 +198,7 @@ namespace Engine {
                               0,            0,              scale[2],   0,
                               0,            0,              0,          1);
 
+        ImGui::SliderFloat("rot", &rotate, 0.f, 360.f);
         float angle = glm::radians(rotate);
 
         glm::mat4 rotateMat(cos(angle), sin(angle), 0, 0,
@@ -206,6 +207,7 @@ namespace Engine {
                             0, 0, 0, 1);
 
         pShaderProgram->setMatrix4("scaleMat", scaleMat);
+        pShaderProgram->setMatrix4("rotateMat", rotateMat);
 
         pVao->bind();
         glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(pVao->getIndicesCount()), GL_UNSIGNED_INT, nullptr);
