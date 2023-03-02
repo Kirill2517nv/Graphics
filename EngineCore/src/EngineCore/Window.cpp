@@ -4,6 +4,7 @@
 #include "EngineCore/Rendering/OpenGL/VertexBuffer.hpp"
 #include "EngineCore/Rendering/OpenGL/IndexBuffer.h"
 #include "EngineCore/Rendering/OpenGL/VertexArray.hpp"
+#include "EngineCore/Camera.hpp"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -45,12 +46,12 @@ namespace Engine {
             #version 460
             layout(location = 0) in vec3 vertexPosition;
             layout(location = 1) in vec3 vertexColor;
-            uniform mat4 scaleMat;
-            uniform mat4 rotateMat;
+            uniform mat4 modelMat;
+            uniform mat4 viewProjectionMatrix;
             out vec3 color;
             void main() {
                 color = vertexColor;
-                gl_Position = rotateMat * scaleMat * vec4(vertexPosition, 1.0);
+                gl_Position = viewProjectionMatrix * modelMat * vec4(vertexPosition, 1.0);
             }
         )";
 
@@ -71,6 +72,14 @@ namespace Engine {
 
     float scale[3] = { 1.0f, 1.0f, 1.0f };
     float rotate = 0;
+    float translate[3] = { 0.f, 0.f, 0.f };
+
+    float cameraPosition[3] = { 0.f, 0.f, 1.f };
+    float cameraRotation[3] = { 0.f, 0.f, 0.f };
+    bool perspectiveCamera = false;
+    Camera camera;
+
+
 	Window::Window(std::string title, const unsigned int width, const unsigned int height) 
 		  : mData({ std::move(title), width, height }) {
 		int resultCode = init();
@@ -191,6 +200,13 @@ namespace Engine {
         ImGui::Begin("Background Color Window");
         ImGui::ColorEdit4("Background color", mBackgroundColor);
         ImGui::SliderFloat3("scale", scale, 0.f, 2.f);
+        ImGui::SliderFloat3("translate", translate, -1.f, 1.f);
+
+        ImGui::SliderFloat3("camera position", cameraPosition, -10.f, 10.f);
+        ImGui::SliderFloat3("camera rotation", cameraRotation, 0, 360.f);
+        ImGui::Checkbox("Perspective camera", &perspectiveCamera);
+
+
         pShaderProgram->bind();
 
         glm::mat4 scaleMat   (scale[0],     0,              0,          0,
@@ -206,8 +222,18 @@ namespace Engine {
                             0, 0, 1, 0,
                             0, 0, 0, 1);
 
-        pShaderProgram->setMatrix4("scaleMat", scaleMat);
-        pShaderProgram->setMatrix4("rotateMat", rotateMat);
+        glm::mat4 translateMat(1,         0,            0,               0,
+                               0,         1,            0,               0,
+                               0,         0,            1,               0,
+                               translate[0], translate[1], translate[2], 1);
+
+        glm::mat4 modelMat = translateMat * rotateMat * scaleMat;
+        pShaderProgram->setMatrix4("modelMat", modelMat);
+
+        camera.setPositionRotation(glm::vec3(cameraPosition[0], cameraPosition[1], cameraPosition[2]),
+            glm::vec3(cameraRotation[0], cameraRotation[1], cameraRotation[2]));
+        camera.setProjectionMode(perspectiveCamera ? Camera::ProjectionMode::Perspective : Camera::ProjectionMode::Orthographic);
+        pShaderProgram->setMatrix4("viewProjectionMatrix", camera.getProjectionMatrix() * camera.getViewMatrix());
 
         pVao->bind();
         glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(pVao->getIndicesCount()), GL_UNSIGNED_INT, nullptr);
