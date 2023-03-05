@@ -6,7 +6,7 @@
 #include "EngineCore/Rendering/OpenGL/VertexArray.hpp"
 #include "EngineCore/Camera.hpp"
 
-#include <glad/glad.h>
+#include "EngineCore/Rendering/OpenGL/RendererOpenGL.hpp"
 #include <GLFW/glfw3.h>
 
 #include <imgui/imgui.h>
@@ -18,7 +18,6 @@
 
 namespace Engine {
 
-    static bool s_GLFW_initialized = false;
 
     GLfloat positionsColors[] = {
        -0.5f,  -0.5f, 0.0f,    1.0f, 1.0f, 0.0f,
@@ -93,29 +92,28 @@ namespace Engine {
     int Window::init() {
         LOG_INFO("Creating window '{0}' with size {1} x {2}", mData.title, mData.width, mData.height);
 
-        if (!s_GLFW_initialized) {
-            if (!glfwInit()) {
-                LOG_CRITICAL("Can't initialize GLFW!");
-                return -1;
-            }
-            s_GLFW_initialized = true;
+        glfwSetErrorCallback([](int errorCode, const char* description) {
+                LOG_CRITICAL("GLFW error: {0}", description);
+            });
+
+        if (!glfwInit())
+        {
+            LOG_CRITICAL("Can't initialize GLFW!");
+            return -1;
         }
+
+
         /* Create a windowed mode window and its OpenGL context */
         mpWindow = glfwCreateWindow(mData.width, mData.height, mData.title.c_str(), nullptr, nullptr);
         if (!mpWindow)
         {
             LOG_CRITICAL("Can't create window '{0}' with size {1} x {2}", mData.title, mData.width, mData.height);
-            glfwTerminate();
             return -2;
         }
 
-        glfwMakeContextCurrent(mpWindow);
-
-        // GLAD INITIALIZATION
-
-        // linking GLAD to OpenGL using custom GLFW loader
-        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-            LOG_CRITICAL("Failed to initialize GLAD");
+        if (!RendererOpenGL::init(mpWindow))
+        {
+            LOG_CRITICAL("Failed to initialize OpenGL renderer");
             return -3;
         }
 
@@ -127,7 +125,6 @@ namespace Engine {
                 WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
                 data.width = width;
                 data.height = height;
-
                 EventWindowResize event(width, height);
                 data.eventCallbackFn(event);
             });
@@ -135,7 +132,6 @@ namespace Engine {
         glfwSetCursorPosCallback(mpWindow,
             [](GLFWwindow* pWindow, double x, double y) {
                 WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
-
                 EventMouseMoved event(x, y);
                 data.eventCallbackFn(event);
             });
@@ -143,16 +139,14 @@ namespace Engine {
         glfwSetWindowCloseCallback(mpWindow,
             [](GLFWwindow* pWindow) {
                 WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
-
                 EventWindowClose event;
                 data.eventCallbackFn(event);
             });
 
         glfwSetFramebufferSizeCallback(mpWindow,
             [](GLFWwindow* pWindow, int width, int height) {
-                glViewport(0, 0, width, height);
+                RendererOpenGL::setViewport(width, height);
             });
-
 
 
         pShaderProgram = std::make_unique<ShaderProgram>(vertexShader, fragmentShader);
@@ -180,9 +174,8 @@ namespace Engine {
     }
 
     void Window::onUpdate() {
-        glClearColor(mBackgroundColor[0], mBackgroundColor[1], mBackgroundColor[2], mBackgroundColor[3]);
-        /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT);
+        RendererOpenGL::setClearColor(mBackgroundColor[0], mBackgroundColor[1], mBackgroundColor[2], mBackgroundColor[3]);
+        RendererOpenGL::clear();
 
 
         ImGuiIO& io = ImGui::GetIO();
@@ -235,8 +228,8 @@ namespace Engine {
         camera.setProjectionMode(perspectiveCamera ? Camera::ProjectionMode::Perspective : Camera::ProjectionMode::Orthographic);
         pShaderProgram->setMatrix4("viewProjectionMatrix", camera.getProjectionMatrix() * camera.getViewMatrix());
 
-        pVao->bind();
-        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(pVao->getIndicesCount()), GL_UNSIGNED_INT, nullptr);
+
+        RendererOpenGL::draw(*pVao);
         ImGui::End();
 
 
@@ -253,6 +246,9 @@ namespace Engine {
     }
 
 	void Window::shutdown() {
+        if (ImGui::GetCurrentContext()) {
+            ImGui::DestroyContext();
+        }
         glfwDestroyWindow(mpWindow);
         glfwTerminate();
 
