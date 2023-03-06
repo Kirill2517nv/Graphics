@@ -6,8 +6,7 @@
 #include <GLFW/glfw3.h>
 
 namespace Engine {
-    void UIModule::on_window_create(GLFWwindow* pWindow)
-    {
+    void UIModule::onWindowCreate(GLFWwindow* pWindow) {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
 
@@ -19,22 +18,19 @@ namespace Engine {
         ImGui_ImplGlfw_InitForOpenGL(pWindow, true);
     }
 
-    void UIModule::on_window_close()
-    {
+    void UIModule::onWindowClose() {
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
     }
 
-    void UIModule::on_ui_draw_begin()
-    {
+    void UIModule::onUiDrawBegin() {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
     }
 
-    void UIModule::on_ui_draw_end()
-    {
+    void UIModule::onUiDrawEnd() {
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
