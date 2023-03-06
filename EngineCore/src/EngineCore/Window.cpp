@@ -4,6 +4,7 @@
 #include "EngineCore/Rendering/OpenGL/VertexBuffer.hpp"
 #include "EngineCore/Rendering/OpenGL/IndexBuffer.h"
 #include "EngineCore/Rendering/OpenGL/VertexArray.hpp"
+#include "EngineCore/Modules/UIModule.hpp"
 #include "EngineCore/Camera.hpp"
 
 #include "EngineCore/Rendering/OpenGL/RendererOpenGL.hpp"
@@ -83,10 +84,6 @@ namespace Engine {
 		  : mData({ std::move(title), width, height }) {
 		int resultCode = init();
 
-        IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
-        ImGui_ImplOpenGL3_Init();
-        ImGui_ImplGlfw_InitForOpenGL(mpWindow, true);
 	}
 
     int Window::init() {
@@ -147,7 +144,8 @@ namespace Engine {
             [](GLFWwindow* pWindow, int width, int height) {
                 RendererOpenGL::setViewport(width, height);
             });
-
+        
+        UIModule::on_window_create(mpWindow);
 
         pShaderProgram = std::make_unique<ShaderProgram>(vertexShader, fragmentShader);
         if (!pShaderProgram->isCompiled()) {
@@ -159,7 +157,7 @@ namespace Engine {
             ShaderDataType::Float3
         };
         
-        pVao= std::make_unique<VertexArray>();
+        pVao = std::make_unique<VertexArray>();
         pPositionsColorsVbo = std::make_unique<VertexBuffer>(positionsColors, sizeof(positionsColors), bufferLayout2vec3);
         pIndexBuffer = std::make_unique<IndexBuffer>(indices, sizeof(indices) / sizeof(GLuint));
 
@@ -246,9 +244,7 @@ namespace Engine {
     }
 
 	void Window::shutdown() {
-        if (ImGui::GetCurrentContext()) {
-            ImGui::DestroyContext();
-        }
+        UIModule::on_window_close();
         glfwDestroyWindow(mpWindow);
         glfwTerminate();
 
