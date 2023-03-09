@@ -6,7 +6,7 @@
 
 namespace Engine {
 
-    constexpr GLenum usage_to_GLenum(const VertexBuffer::EUsage usage)
+    constexpr GLenum usageToGLenum(const VertexBuffer::EUsage usage)
     {
         switch (usage)
         {
@@ -20,42 +20,42 @@ namespace Engine {
     }
 
     IndexBuffer::IndexBuffer(const void* data, const size_t count, const VertexBuffer::EUsage usage)
-        : m_count(count)
+        : mCount(count)
     {
-        glGenBuffers(1, &m_id);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_id);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(GLuint), data, usage_to_GLenum(usage));
+        glGenBuffers(1, &mId);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mId);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(GLuint), data, usageToGLenum(usage));
     }
 
 
     IndexBuffer::~IndexBuffer()
     {
-        glDeleteBuffers(1, &m_id);
+        glDeleteBuffers(1, &mId);
     }
 
 
-    IndexBuffer& IndexBuffer::operator=(IndexBuffer&& index_buffer) noexcept
+    IndexBuffer& IndexBuffer::operator=(IndexBuffer&& indexBuffer) noexcept
     {
-        m_id = index_buffer.m_id;
-        m_count = index_buffer.m_count;
-        index_buffer.m_id = 0;
-        index_buffer.m_count = 0;
+        mId = indexBuffer.mId;
+        mCount = indexBuffer.mCount;
+        indexBuffer.mId = 0;
+        indexBuffer.mCount = 0;
         return *this;
     }
 
 
-    IndexBuffer::IndexBuffer(IndexBuffer&& index_buffer) noexcept
-        : m_id(index_buffer.m_id)
-        , m_count(index_buffer.m_count)
+    IndexBuffer::IndexBuffer(IndexBuffer&& indexBuffer) noexcept
+        : mId(indexBuffer.mId)
+        , mCount(indexBuffer.mCount)
     {
-        index_buffer.m_id = 0;
-        index_buffer.m_count = 0;
+        indexBuffer.mId = 0;
+        indexBuffer.mCount = 0;
     }
 
 
     void IndexBuffer::bind() const
     {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_id);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mId);
     }
 
 

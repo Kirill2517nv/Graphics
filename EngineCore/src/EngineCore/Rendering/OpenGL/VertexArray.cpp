@@ -7,61 +7,61 @@
 namespace Engine {
 
     VertexArray::VertexArray() {
-        glGenVertexArrays(1, &m_id);
+        glGenVertexArrays(1, &mId);
     }
 
     VertexArray::~VertexArray() {
-        glDeleteVertexArrays(1, &m_id);
+        glDeleteVertexArrays(1, &mId);
     }
 
-    VertexArray& VertexArray::operator=(VertexArray&& vertex_array) noexcept {
-        m_id = vertex_array.m_id;
-        m_elements_count = vertex_array.m_id;
-        vertex_array.m_id = 0;
-        vertex_array.m_elements_count = 0;
+    VertexArray& VertexArray::operator=(VertexArray&& vertexArray) noexcept {
+        mId = vertexArray.mId;
+        mElementsCount = vertexArray.mId;
+        vertexArray.mId = 0;
+        vertexArray.mElementsCount = 0;
         return *this;
     }
 
-    VertexArray::VertexArray(VertexArray&& vertex_array) noexcept
-        : m_id(vertex_array.m_id)
-        , m_elements_count(vertex_array.m_elements_count) {
-        vertex_array.m_id = 0;
-        vertex_array.m_elements_count = 0;
+    VertexArray::VertexArray(VertexArray&& vertexArray) noexcept
+        : mId(vertexArray.mId)
+        , mElementsCount(vertexArray.mElementsCount) {
+        vertexArray.mId = 0;
+        vertexArray.mElementsCount = 0;
     }
 
     void VertexArray::bind() const {
-        glBindVertexArray(m_id);
+        glBindVertexArray(mId);
     }
 
     void VertexArray::unbind() {
         glBindVertexArray(0);
     }
 
-    void VertexArray::add_vertex_buffer(const VertexBuffer& vertex_buffer) {
+    void VertexArray::addVertexBuffer(const VertexBuffer& vertexBuffer) {
         bind();
-        vertex_buffer.bind();
+        vertexBuffer.bind();
 
-        for (const BufferElement& currElement : vertex_buffer.getLayout().getElemets()) {
+        for (const BufferElement& currElement : vertexBuffer.getLayout().getElemets()) {
 
-            glEnableVertexAttribArray(m_elements_count);
+            glEnableVertexAttribArray(mElementsCount);
             glVertexAttribPointer(
-                m_elements_count,
+                mElementsCount,
                 static_cast<GLint>(currElement.componentCount),
                 currElement.componentType,
                 GL_FALSE,
-                static_cast<GLsizei>(vertex_buffer.getLayout().getStride()),
+                static_cast<GLsizei>(vertexBuffer.getLayout().getStride()),
                 reinterpret_cast<const void*>(currElement.offset)
             );
-            ++m_elements_count;
+            ++mElementsCount;
         }
 
         //TODO - use buffer layout
 
     }
-    void VertexArray::set_index_buffer(const IndexBuffer& index_buffer) {
+    void VertexArray::setIndexBuffer(const IndexBuffer& indexBuffer) {
         bind();
-        index_buffer.bind();
+        indexBuffer.bind();
 
-        mIndicesCount = index_buffer.get_count();
+        mIndicesCount = indexBuffer.getCount();
     }
 }

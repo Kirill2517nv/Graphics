@@ -11,16 +11,16 @@ namespace Engine {
 
         IndexBuffer(const IndexBuffer&) = delete;
         IndexBuffer& operator=(const IndexBuffer&) = delete;
-        IndexBuffer& operator=(IndexBuffer&& index_buffer) noexcept;
-        IndexBuffer(IndexBuffer&& index_buffer) noexcept;
+        IndexBuffer& operator=(IndexBuffer&& indexBuffer) noexcept;
+        IndexBuffer(IndexBuffer&& indexBuffer) noexcept;
 
         void bind() const;
         static void unbind();
-        size_t get_count() const { return m_count; }
+        size_t getCount() const { return mCount; }
 
     private:
-        unsigned int m_id = 0;
-        size_t m_count;
+        unsigned int mId = 0;
+        size_t mCount;
     };
 
 }
