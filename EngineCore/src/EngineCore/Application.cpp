@@ -5,6 +5,7 @@
 #include "EngineCore/Log.h"
 #include "EngineCore/Window.h"
 #include "EngineCore/Event.hpp"
+#include "EngineCore/Input.hpp"
 
 #include "EngineCore/Rendering/OpenGL/ShaderProgram.hpp"
 #include "EngineCore/Rendering/OpenGL/VertexBuffer.hpp"
@@ -93,7 +94,33 @@ namespace Engine {
 				mbCloseWindow = true;
 			}
 		);
+		
+		mEventDispatcher.addEventListener<EventKeyPressed>(
+			[&](EventKeyPressed& event) {
+				
+				if (event.keycode <= KeyCode::KEY_Z) {
+					if (event.repeated) {
+						LOG_INFO("[KEY PRESSED] {0}, repeated", (char)event.keycode);
+					}
+					else {
+						LOG_INFO("[KEY PRESSED] {0}", static_cast<char>(event.keycode));
+					}
+				}
+				Input::pressKey(event.keycode);
+				mbCloseWindow = true;
+			}
+		);
 
+		mEventDispatcher.addEventListener<EventKeyReleased>(
+			[&](EventKeyReleased& event) {
+				
+				if (event.keycode <= KeyCode::KEY_Z) {
+					LOG_INFO("[KEY RELEASED] {0}", static_cast<char>(event.keycode));
+				}
+				Input::releaseKey(event.keycode);
+				mbCloseWindow = true;
+			}
+		);
 
 		mpWindow->set_event_callback(
 			[&](BaseEvent& event) {

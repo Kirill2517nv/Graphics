@@ -1,11 +1,43 @@
 #include <iostream>
 #include <memory>
 #include <EngineCore/Application.h>
+#include <EngineCore/Input.hpp>
 #include <imgui/imgui.h>
 
 class EngineEditor : public Engine::Application {
 	virtual void onUpdate() override {
 		//std::cout << "Update Frame: " << frame++ << std::endl;
+		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_W)) {
+			cameraPosition[2] -= 0.01f;
+		}
+		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_S)) {
+			cameraPosition[2] += 0.01f;
+		}
+		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_A)) {
+			cameraPosition[0] -= 0.01f;
+		}
+		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_A)) {
+			cameraPosition[0] -= 0.01f;
+		}
+		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_E)) {
+			cameraPosition[1] += 0.01f;
+		}
+		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_Q)) {
+			cameraPosition[1] -= 0.01f;
+		}
+		// rotation
+		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_UP)) {
+			cameraRotation[0] += 0.5f;
+		}
+		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_DOWN)) {
+			cameraRotation[0] -= 0.5f;
+		}
+		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_RIGHT)) {
+			cameraRotation[1] -= 0.5f;
+		}
+		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_LEFT)) {
+			cameraRotation[1] += 0.5f;
+		}
 	}
 
 	virtual void onUiDraw() override

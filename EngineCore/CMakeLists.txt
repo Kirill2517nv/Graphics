@@ -7,6 +7,8 @@ set(ENGINE_PUBLIC_INCLUDES
 	includes/EngineCore/Log.h
 	includes/EngineCore/Event.hpp
 	includes/EngineCore/Camera.hpp
+	includes/EngineCore/Keys.hpp
+	includes/EngineCore/Input.hpp
 )
 
 set(ENGINE_PRIVATE_INCLUDES
@@ -22,6 +24,7 @@ set(ENGINE_PRIVATE_INCLUDES
 set(ENGINE_PRIVATE_SOURCES
 	src/EngineCore/Application.cpp
 	src/EngineCore/Window.cpp
+	src/EngineCore/Input.cpp
 	src/EngineCore/Modules/UIModule.cpp
 	src/EngineCore/Camera.cpp
 	src/EngineCore/Rendering/OpenGL/ShaderProgram.cpp

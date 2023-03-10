@@ -24,7 +24,7 @@ namespace Engine {
 
 		float cameraPosition[3] = { 0.f, 0.f, 1.f };
 		float cameraRotation[3] = { 0.f, 0.f, 0.f };
-		bool perspectiveCamera = false;
+		bool perspectiveCamera = true;
 		Camera camera;
 	private:
 		std::unique_ptr<class Window> mpWindow;

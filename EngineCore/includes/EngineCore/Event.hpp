@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <array>
+#include "Keys.hpp"
 
 namespace Engine {
 
@@ -96,5 +97,36 @@ namespace Engine {
 		static const EventType type = EventType::WindowClose;
 	};
 
+	struct EventKeyPressed : public BaseEvent {
+		EventKeyPressed(const KeyCode keycode, const bool repeated) : 
+			keycode(keycode),
+			repeated(repeated)
+		{
+
+		}
+
+		virtual EventType getType() const override {
+			return type;
+		}
+
+		KeyCode keycode;
+		bool repeated;
+		static const EventType type = EventType::KeyPressed;
+	};
+
+	struct EventKeyReleased : public BaseEvent{
+		EventKeyReleased(const KeyCode keycode) :
+			keycode(keycode)
+		{
+
+		}
+
+		virtual EventType getType() const override {
+			return type;
+		}
+
+		KeyCode keycode;
+		static const EventType type = EventType::KeyReleased;
+	};
 
 }
