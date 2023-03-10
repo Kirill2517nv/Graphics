@@ -23,10 +23,10 @@
 namespace Engine {
 
 	GLfloat positionsColors2[] = {
-		   -0.5f, -0.5f, 0.0f,   1.0f, 1.0f, 0.0f,
-			0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 1.0f,
-		   -0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 1.0f,
-			0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f
+		0.0f, -0.5f, -0.5f,   1.0f, 1.0f, 0.0f,
+		0.0f,  0.5f, -0.5f,   0.0f, 1.0f, 1.0f,
+		0.0f, -0.5f,  0.5f,   1.0f, 0.0f, 1.0f,
+		0.0f,  0.5f,  0.5f,   1.0f, 0.0f, 0.0f
 	};
 
 	GLuint indices[] = {
@@ -179,8 +179,6 @@ namespace Engine {
 			glm::mat4 modelMatrix = translateMatrix * rotateMatrix * scaleMatrix;
 			pShaderProgram->setMatrix4("modelMatrix", modelMatrix);
 
-			camera.setPositionRotation(glm::vec3(cameraPosition[0], cameraPosition[1], cameraPosition[2]),
-				glm::vec3(cameraRotation[0], cameraRotation[1], cameraRotation[2]));
 			camera.setProjectionMode(perspectiveCamera ? Camera::ProjectionMode::Perspective : Camera::ProjectionMode::Orthographic);
 			pShaderProgram->setMatrix4("viewProjectionMatrix", camera.getProjectionMatrix() * camera.getViewMatrix());
 			RendererOpenGL::draw(*pVao);

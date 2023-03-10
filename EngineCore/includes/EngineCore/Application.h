@@ -25,7 +25,7 @@ namespace Engine {
 		float cameraPosition[3] = { 0.f, 0.f, 1.f };
 		float cameraRotation[3] = { 0.f, 0.f, 0.f };
 		bool perspectiveCamera = true;
-		Camera camera;
+		Camera camera{ glm::vec3(-5.f, 0.f, 0.f) };
 	private:
 		std::unique_ptr<class Window> mpWindow;
 		EventDispatcher mEventDispatcher;
