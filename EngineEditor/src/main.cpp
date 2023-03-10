@@ -16,13 +16,13 @@ class EngineEditor : public Engine::Application {
 		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_A)) {
 			cameraPosition[0] -= 0.01f;
 		}
-		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_A)) {
-			cameraPosition[0] -= 0.01f;
+		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_D)) {
+			cameraPosition[0] += 0.01f;
 		}
-		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_E)) {
+		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_R)) {
 			cameraPosition[1] += 0.01f;
 		}
-		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_Q)) {
+		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_F)) {
 			cameraPosition[1] -= 0.01f;
 		}
 		// rotation

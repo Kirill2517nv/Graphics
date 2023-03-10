@@ -107,7 +107,6 @@ namespace Engine {
 					}
 				}
 				Input::pressKey(event.keycode);
-				mbCloseWindow = true;
 			}
 		);
 
@@ -118,7 +117,6 @@ namespace Engine {
 					LOG_INFO("[KEY RELEASED] {0}", static_cast<char>(event.keycode));
 				}
 				Input::releaseKey(event.keycode);
-				mbCloseWindow = true;
 			}
 		);
 
