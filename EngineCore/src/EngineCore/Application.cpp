@@ -122,7 +122,7 @@ namespace Engine {
 		// mouse event
 		mEventDispatcher.addEventListener<EventMouseButtonPressed>(
 			[&](EventMouseButtonPressed& event) {
-				LOG_INFO("[MOUSE BUTTON PRESSED: {0} AT {1}x{2}]", event.mouseButton, event.xPos, event.yPos);
+				LOG_INFO("[MOUSE BUTTON PRESSED: {0} AT {1}x{2}]", static_cast<int>(event.mouseButton), event.xPos, event.yPos);
 				Input::pressMouseButton(event.mouseButton);
 				onMouseButtonEvent(event.mouseButton, event.xPos, event.yPos, true);
 			}
@@ -130,7 +130,7 @@ namespace Engine {
 
 		mEventDispatcher.addEventListener<EventMouseButtonReleased>(
 			[&](EventMouseButtonReleased& event) {
-				LOG_INFO("[MOUSE BUTTON RELEASED: {0} AT {1}x{2}]", event.mouseButton, event.xPos, event.yPos);
+				LOG_INFO("[MOUSE BUTTON RELEASED: {0} AT {1}x{2}]", static_cast<int>(event.mouseButton), event.xPos, event.yPos);
 				Input::releaseMouseButton(event.mouseButton);
 				onMouseButtonEvent(event.mouseButton, event.xPos, event.yPos, false);
 			}
