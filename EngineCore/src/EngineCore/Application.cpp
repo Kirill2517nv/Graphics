@@ -94,7 +94,7 @@ namespace Engine {
 				mbCloseWindow = true;
 			}
 		);
-		
+
 		mEventDispatcher.addEventListener<EventKeyPressed>(
 			[&](EventKeyPressed& event) {
 				
@@ -117,6 +117,22 @@ namespace Engine {
 					LOG_INFO("[KEY RELEASED] {0}", static_cast<char>(event.keycode));
 				}
 				Input::releaseKey(event.keycode);
+			}
+		);
+		// mouse event
+		mEventDispatcher.addEventListener<EventMouseButtonPressed>(
+			[&](EventMouseButtonPressed& event) {
+				LOG_INFO("[MOUSE BUTTON PRESSED: {0} AT {1}x{2}]", event.mouseButton, event.xPos, event.yPos);
+				Input::pressMouseButton(event.mouseButton);
+				onMouseButtonEvent(event.mouseButton, event.xPos, event.yPos, true);
+			}
+		);
+
+		mEventDispatcher.addEventListener<EventMouseButtonReleased>(
+			[&](EventMouseButtonReleased& event) {
+				LOG_INFO("[MOUSE BUTTON RELEASED: {0} AT {1}x{2}]", event.mouseButton, event.xPos, event.yPos);
+				Input::releaseMouseButton(event.mouseButton);
+				onMouseButtonEvent(event.mouseButton, event.xPos, event.yPos, false);
 			}
 		);
 
@@ -210,5 +226,9 @@ namespace Engine {
 		mpWindow = nullptr;
 
 		return 0;
+	}
+
+	glm::vec2 Application::getCurrentCursorPosition() const {
+		return mpWindow->getCurrentCursorPosition();
 	}
 }

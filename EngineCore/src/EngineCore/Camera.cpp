@@ -84,31 +84,40 @@ namespace Engine {
         updateProjectionMatrix();
     }
 
+    const glm::mat4& Camera::getViewMatrix()
+    {
+        if (mUpdateViewMatrix)
+        {
+            updateViewMatrix();
+        }
+        return mViewMatrix;
+    }
+
     void Camera::moveForward(const float delta)
     {
         mPosition += mDirection * delta;
-        updateViewMatrix();
+        mUpdateViewMatrix = true;
     }
 
     void Camera::moveRight(const float delta)
     {
         mPosition += mRight * delta;
-        updateViewMatrix();
+        mUpdateViewMatrix = true;
     }
 
     void Camera::moveUp(const float delta)
     {
-        mPosition += mUp * delta;
-        updateViewMatrix();
+        mPosition += sWorldUp * delta;
+        mUpdateViewMatrix = true;
     }
 
-    void Camera::addMovementAndRotatition(const glm::vec3& movementDelta,
+    void Camera::addMovementAndRotation(const glm::vec3& movementDelta,
         const glm::vec3& rotationDelta)
     {
         mPosition += mDirection * movementDelta.x;
         mPosition += mRight * movementDelta.y;
         mPosition += mUp * movementDelta.z;
         mRotation += rotationDelta;
-        updateViewMatrix();
+        mUpdateViewMatrix = true;
     }
 }

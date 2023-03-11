@@ -5,68 +5,77 @@
 #include <imgui/imgui.h>
 
 class EngineEditor : public Engine::Application {
-	virtual void onUpdate() override {
+	double mInitialMoisePosX = 0;
+	double mInitialMoisePosY = 0;
 
-		bool moveCamera = false;
+	virtual void onUpdate() override {
 		glm::vec3 movementDelta{ 0, 0, 0 };
 		glm::vec3 rotationDelta{ 0, 0, 0 };
 		//std::cout << "Update Frame: " << frame++ << std::endl;
 		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_W)) {
-			movementDelta.x += 0.01f;
-			moveCamera = true;
+			movementDelta.x += 0.01f;			
 		}
 		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_S)) {
-			movementDelta.x -= 0.01f;
-			moveCamera = true;
+			movementDelta.x -= 0.01f;			
 		}
 		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_A)) {
-			movementDelta.y -= 0.01f;
-			moveCamera = true;
+			movementDelta.y -= 0.01f;			
 		}
 		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_D)) {
-			movementDelta.y += 0.01f;
-			moveCamera = true;
+			movementDelta.y += 0.01f;			
 		}
 		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_R)) {
-			movementDelta.z += 0.01f;
-			moveCamera = true;
+			movementDelta.z += 0.01f;			
 		}
 		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_F)) {
-			movementDelta.z -= 0.01f;
-			moveCamera = true;
+			movementDelta.z -= 0.01f;			
 		}
 		// rotation
 		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_UP)) {
-			rotationDelta.y += 0.5f;
-			moveCamera = true;
+			rotationDelta.y -= 0.5f;			
 		}
 		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_DOWN)) {
-			rotationDelta.y -= 0.5f;
-			moveCamera = true;
+			rotationDelta.y += 0.5f;			
 		}
 		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_RIGHT)) {
-			rotationDelta.z -= 0.5f;
-			moveCamera = true;
+			rotationDelta.z -= 0.5f;			
 		}
 		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_LEFT)) {
-			rotationDelta.z += 0.5f;
-			moveCamera = true;
+			rotationDelta.z += 0.5f;			
 		}
-		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_P))
+		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_Q))
 		{
-			rotationDelta.x += 0.5f;
-			moveCamera = true;
+			rotationDelta.x -= 0.5f;			
 		}
-		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_O))
+		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_E))
 		{
-			rotationDelta.x -= 0.5f;
-			moveCamera = true;
+			rotationDelta.x += 0.5f;			
+		}
+		
+		// rotate camera with a mouse using RMB
+		if (Engine::Input::isMouseButtonPressed(Engine::MouseButton::MOUSE_BUTTON_RIGHT)) {
+			// pan camera with two buttons pressed
+			auto currentCursorPosition = getCurrentCursorPosition();
+			
+			if (Engine::Input::isMouseButtonPressed(Engine::MouseButton::MOUSE_BUTTON_LEFT)) {
+				camera.moveRight((mInitialMoisePosX - currentCursorPosition.x) / 100.0);
+				camera.moveUp((mInitialMoisePosY - currentCursorPosition.y) / 100.0);
+			}
+			else {
+				rotationDelta.z += (mInitialMoisePosX - currentCursorPosition.x) / 5.0; // yaw
+				rotationDelta.y -= (mInitialMoisePosY - currentCursorPosition.y) / 5.0; // pitch
+			}
+
+			mInitialMoisePosX = currentCursorPosition.x;
+			mInitialMoisePosY = currentCursorPosition.y;
 		}
 
-		if (moveCamera)
-		{
-			camera.addMovementAndRotatition(movementDelta, rotationDelta);
-		}
+		camera.addMovementAndRotation(movementDelta, rotationDelta);
+	}
+
+	virtual void onMouseButtonEvent(const Engine::MouseButton button, const double xPos, const double yPos, const bool pressed) override {
+		mInitialMoisePosX = xPos;
+		mInitialMoisePosY = yPos;
 	}
 
 	virtual void onUiDraw() override

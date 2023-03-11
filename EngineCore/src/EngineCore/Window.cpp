@@ -49,7 +49,8 @@ namespace Engine {
         }
 
         glfwSetWindowUserPointer(mpWindow, &mData);
-
+        
+        // keyboard callback
         glfwSetKeyCallback(mpWindow,
             [](GLFWwindow* mpWindow, int key, int scancode, int action, int mods) {
             
@@ -67,6 +68,26 @@ namespace Engine {
                 }
                 case GLFW_REPEAT: {
                     EventKeyPressed event(static_cast<KeyCode>(key), true);
+                    data.eventCallbackFn(event);
+                    break;
+                }
+            }
+            });
+
+        // mouse callback
+        glfwSetMouseButtonCallback(mpWindow,
+            [](GLFWwindow* mpWindow, int button, int action, int mods) {
+                double xPos, yPos;
+                WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(mpWindow));
+                glfwGetCursorPos(mpWindow, &xPos, &yPos);
+                switch (action) {
+                case GLFW_PRESS: {
+                    EventMouseButtonPressed event(static_cast<MouseButton>(button), xPos, yPos);
+                    data.eventCallbackFn(event);
+                    break;
+                }
+                case GLFW_RELEASE: {
+                    EventMouseButtonReleased event(static_cast<MouseButton>(button), xPos, yPos);
                     data.eventCallbackFn(event);
                     break;
                 }
@@ -126,4 +147,10 @@ namespace Engine {
         glfwTerminate();
 
 	}
+
+    glm::vec2 Window::getCurrentCursorPosition() const {
+        double xPos, yPos;
+        glfwGetCursorPos(mpWindow, &xPos, &yPos);
+        return glm::vec2{ xPos, yPos };
+    }
 }

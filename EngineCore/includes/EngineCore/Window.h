@@ -2,6 +2,7 @@
 #include <string>
 #include "EngineCore/Event.hpp"
 #include <functional>
+#include <glm/ext/vector_float2.hpp>
 struct GLFWwindow;
 
 namespace Engine {
@@ -20,6 +21,7 @@ namespace Engine {
 		void onUpdate();
 		unsigned int getWidth() const { return mData.width; };
 		unsigned int getHeight() const { return mData.height; };
+		glm::vec2 getCurrentCursorPosition() const;
 
 		void set_event_callback(const EventCallbackFn& callback) {
 			mData.eventCallbackFn = callback;

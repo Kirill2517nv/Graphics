@@ -10,7 +10,12 @@ namespace Engine {
 		static void pressKey(const KeyCode keyCode);
 		static void releaseKey(const KeyCode keyCode);
 
+		static bool isMouseButtonPressed(const MouseButton button);
+		static void pressMouseButton(const MouseButton button);
+		static void releaseMouseButton(const MouseButton button);
+
 	private:
-		static bool mKeysPressed[static_cast<size_t>(KeyCode::KEY_LAST)];
+		static bool mKeysPressed[];
+		static bool mMouseButtonsPressed[];
 	};
 }

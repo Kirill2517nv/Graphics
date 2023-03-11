@@ -20,7 +20,11 @@ namespace Engine {
 
 		virtual void onUpdate() {};
 
-		virtual void onUiDraw() {}
+		virtual void onUiDraw() {};
+
+		virtual void onMouseButtonEvent(const MouseButton button, const double xPos, const double yPos, const bool pressed) {};
+
+		glm::vec2 getCurrentCursorPosition() const;
 
 		float cameraPosition[3] = { 0.f, 0.f, 1.f };
 		float cameraRotation[3] = { 0.f, 0.f, 0.f };

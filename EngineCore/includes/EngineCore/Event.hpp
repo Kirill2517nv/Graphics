@@ -13,8 +13,8 @@ namespace Engine {
 		KeyPressed,
 		KeyReleased,
 
-		MouseBottonPressed,
-		MouseBottonReleased,
+		MouseButtonPressed,
+		MouseButtonReleased,
 		MouseMoved,
 
 		EventsCount
@@ -127,6 +127,45 @@ namespace Engine {
 
 		KeyCode keycode;
 		static const EventType type = EventType::KeyReleased;
+	};
+
+	// mouse button callbacks
+	struct EventMouseButtonPressed : public BaseEvent {
+		EventMouseButtonPressed(const MouseButton mouseButton, const double xPos, const double yPos) :
+			mouseButton(mouseButton),
+			xPos(xPos),
+			yPos(yPos)
+		{
+
+		}
+
+		virtual EventType getType() const override {
+			return type;
+		}
+
+		MouseButton mouseButton;
+		double xPos;
+		double yPos;
+		static const EventType type = EventType::MouseButtonPressed;
+	};
+
+	struct EventMouseButtonReleased : public BaseEvent {
+		EventMouseButtonReleased(const MouseButton mouseButton, const double xPos, const double yPos) :
+			mouseButton(mouseButton),
+			xPos(xPos),
+			yPos(yPos)
+		{
+
+		}
+
+		virtual EventType getType() const override {
+			return type;
+		}
+
+		MouseButton mouseButton;
+		double xPos;
+		double yPos;
+		static const EventType type = EventType::MouseButtonReleased;
 	};
 
 }

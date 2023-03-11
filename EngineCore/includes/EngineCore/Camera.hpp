@@ -21,7 +21,7 @@ namespace Engine {
         void setRotation(const glm::vec3& rotation);
         void setPositionRotation(const glm::vec3& position, const glm::vec3& rotation);
         void setProjectionMode(const ProjectionMode projectionMode);
-        const glm::mat4& getViewMatrix() const { return mViewMatrix; }
+        const glm::mat4& getViewMatrix();
         const glm::mat4& getProjectionMatrix() const { return mProjectionMatrix; }
 
         void moveForward(const float delta);
@@ -33,7 +33,7 @@ namespace Engine {
 
         // movement_delta.x - forward, movement_delta.y - right, movement_delta.z - up
         // rotation_delta.x - roll, rotation_delta.y - pitch, rotation_delta.z - yaw
-        void addMovementAndRotatition(const glm::vec3& movement_delta,
+        void addMovementAndRotation(const glm::vec3& movement_delta,
                                       const glm::vec3& rotation_delta);
 
     private:
@@ -54,5 +54,7 @@ namespace Engine {
 
         glm::mat4 mViewMatrix;
         glm::mat4 mProjectionMatrix;
+
+        bool mUpdateViewMatrix = false;
     };
 }
