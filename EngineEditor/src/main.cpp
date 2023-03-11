@@ -58,7 +58,7 @@ class EngineEditor : public Engine::Application {
 			glm::vec2 currentCursorPosition = getCurrentCursorPosition();
 			
 			if (Engine::Input::isMouseButtonPressed(Engine::MouseButton::MOUSE_BUTTON_LEFT)) {
-				camera.moveRight(static_cast<float>(mInitialMousePosX - currentCursorPosition.x) / 100.0);
+				camera.moveRight(static_cast<float>(-mInitialMousePosX + currentCursorPosition.x) / 100.0);
 				camera.moveUp(static_cast<float>(mInitialMousePosY - currentCursorPosition.y) / 100.0);
 			}
 			else {
