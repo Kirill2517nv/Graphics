@@ -5,8 +5,8 @@
 #include <imgui/imgui.h>
 
 class EngineEditor : public Engine::Application {
-	double mInitialMoisePosX = 0;
-	double mInitialMoisePosY = 0;
+	double mInitialMousePosX = 0;
+	double mInitialMousePosY = 0;
 
 	virtual void onUpdate() override {
 		glm::vec3 movementDelta{ 0, 0, 0 };
@@ -55,29 +55,29 @@ class EngineEditor : public Engine::Application {
 		// rotate camera with a mouse using RMB
 		if (Engine::Input::isMouseButtonPressed(Engine::MouseButton::MOUSE_BUTTON_RIGHT)) {
 			// pan camera with two buttons pressed
-			auto currentCursorPosition = getCurrentCursorPosition();
+			glm::vec2 currentCursorPosition = getCurrentCursorPosition();
 			
 			if (Engine::Input::isMouseButtonPressed(Engine::MouseButton::MOUSE_BUTTON_LEFT)) {
-				camera.moveRight((mInitialMoisePosX - currentCursorPosition.x) / 100.0);
-				camera.moveUp((mInitialMoisePosY - currentCursorPosition.y) / 100.0);
+				camera.moveRight(static_cast<float>(mInitialMousePosX - currentCursorPosition.x) / 100.0);
+				camera.moveUp(static_cast<float>(mInitialMousePosY - currentCursorPosition.y) / 100.0);
 			}
 			else {
-				rotationDelta.z += (mInitialMoisePosX - currentCursorPosition.x) / 5.0; // yaw
-				rotationDelta.y -= (mInitialMoisePosY - currentCursorPosition.y) / 5.0; // pitch
+				rotationDelta.z += static_cast<float>(mInitialMousePosX - currentCursorPosition.x) / 5.0; // yaw
+				rotationDelta.y -= static_cast<float>(mInitialMousePosY - currentCursorPosition.y) / 5.0; // pitch
 			}
 
-			mInitialMoisePosX = currentCursorPosition.x;
-			mInitialMoisePosY = currentCursorPosition.y;
+			mInitialMousePosX = currentCursorPosition.x;
+			mInitialMousePosY = currentCursorPosition.y;
 		}
 
 		camera.addMovementAndRotation(movementDelta, rotationDelta);
 	}
 
 	virtual void onMouseButtonEvent(const Engine::MouseButton button, const double xPos, const double yPos, const bool pressed) override {
-		mInitialMoisePosX = xPos;
-		mInitialMoisePosY = yPos;
+		mInitialMousePosX = xPos;
+		mInitialMousePosY = yPos;
 	}
-
+	
 	virtual void onUiDraw() override
 	{
 		cameraPosition[0] = camera.getCameraPosition().x;

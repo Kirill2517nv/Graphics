@@ -1,8 +1,8 @@
 #include "EngineCore/Input.hpp"
 
 namespace Engine {
-    bool Input::mKeysPressed[static_cast<size_t>(KeyCode::KEY_LAST) + 1];
-    bool Input::mMouseButtonsPressed[static_cast<size_t>(MouseButton::MOUSE_BUTTON_LAST) + 1];
+    bool Input::mKeysPressed[static_cast<size_t>(KeyCode::KEY_LAST) + 1] = {};
+    bool Input::mMouseButtonsPressed[static_cast<size_t>(MouseButton::MOUSE_BUTTON_LAST) + 1] = {};
     
     bool Input::isKeyPressed(const KeyCode keyCode) {
         return mKeysPressed[static_cast<size_t>(keyCode)];

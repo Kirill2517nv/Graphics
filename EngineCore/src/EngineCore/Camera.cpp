@@ -65,18 +65,18 @@ namespace Engine {
 
     void Camera::setPosition(const glm::vec3& position) {
         mPosition = position;
-        updateViewMatrix();
+        mUpdateViewMatrix = true;
     }
 
     void Camera::setRotation(const glm::vec3& rotation) {
         mRotation = rotation;
-        updateViewMatrix();
+        mUpdateViewMatrix = true;
     }
 
     void Camera::setPositionRotation(const glm::vec3& position, const glm::vec3& rotation) {
         mPosition = position;
         mRotation = rotation;
-        updateViewMatrix();
+        mUpdateViewMatrix = true;
     }
 
     void Camera::setProjectionMode(const ProjectionMode projection_mode) {
