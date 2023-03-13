@@ -19,8 +19,10 @@
 #include <glm/mat3x3.hpp>
 #include <glm/trigonometric.hpp>
 #include <GLFW/glfw3.h>
+#define PI 3.14159265
 
 namespace Engine {
+	
 
 	GLfloat positionsColors2[] = {
 		0.0f, -0.5f, -0.5f,   1.0f, 1.0f, 0.0f,
@@ -56,9 +58,9 @@ namespace Engine {
         )";
 
 	std::unique_ptr<ShaderProgram> pShaderProgram;
-	std::unique_ptr<VertexBuffer> pPositionsColorsVbo;
-	std::unique_ptr<IndexBuffer> pIndexBuffer;
-	std::unique_ptr<VertexArray> pVao;
+	std::unique_ptr<VertexBuffer> pPositionsColorsVbo, pPositionsColorsVbo1;
+	std::unique_ptr<IndexBuffer> pIndexBuffer, pIndexBuffer1;
+	std::unique_ptr<VertexArray> pVao, pVao1;
 	float scale[3] = { 1.f, 1.f, 1.f };
 	float rotate = 0.f;
 	float translate[3] = { 0.f, 0.f, 0.f };
@@ -66,6 +68,72 @@ namespace Engine {
 
 	Application::Application() {
 		LOG_INFO("Starting application");
+		float x, y, z, xy;                              // vertex position
+
+
+		float sectorStep = 2 * PI / sectorCount;
+		float stackStep = PI / stackCount;
+		float sectorAngle, stackAngle;
+
+		for (int i = 0; i <= stackCount; ++i)
+		{
+			stackAngle = PI / 2 - i * stackStep;        // starting from pi/2 to -pi/2
+			xy = radius * cosf(stackAngle);             // r * cos(u)
+			z = radius * sinf(stackAngle);              // r * sin(u)
+
+			// add (sectorCount+1) vertices per stack
+			// the first and last vertices have same position and normal, but different tex coords
+			for (int j = 0; j <= sectorCount; ++j)
+			{
+				sectorAngle = j * sectorStep;           // starting from 0 to 2pi
+
+				// vertex position (x, y, z)
+				x = xy * cosf(sectorAngle);             // r * cos(u) * cos(v)
+				y = xy * sinf(sectorAngle);             // r * cos(u) * sin(v)
+				mVertices.push_back(x);
+				mVertices.push_back(y);
+				mVertices.push_back(z);
+				if (j <= sectorCount/2) {
+					mVertices.push_back(1.0);
+					mVertices.push_back(0.0);
+					mVertices.push_back(0.0);
+				}
+				else {
+					mVertices.push_back(0.0);
+					mVertices.push_back(1.0);
+					mVertices.push_back(0.0);
+				}
+
+			}
+		}
+		int k1, k2;
+		for (int i = 0; i < stackCount; ++i)
+		{
+			k1 = i * (sectorCount + 1);     // beginning of current stack
+			k2 = k1 + sectorCount + 1;      // beginning of next stack
+
+			for (int j = 0; j < sectorCount; ++j, ++k1, ++k2)
+			{
+				// 2 triangles per sector excluding first and last stacks
+				// k1 => k2 => k1+1
+				if (i != 0)
+				{
+					mIndices.push_back(k1);
+					mIndices.push_back(k2);
+					mIndices.push_back(k1 + 1);
+				}
+
+				// k1+1 => k2 => k2+1
+				if (i != (stackCount - 1))
+				{
+					mIndices.push_back(k1 + 1);
+					mIndices.push_back(k2);
+					mIndices.push_back(k2 + 1);
+				}
+			}
+		}
+
+
 	}
 
 	Application::~Application() {
@@ -161,12 +229,18 @@ namespace Engine {
 			ShaderDataType::Float3
 		};
 
-		pVao = std::make_unique<VertexArray>();
+	/*	pVao = std::make_unique<VertexArray>();
 		pPositionsColorsVbo = std::make_unique<VertexBuffer>(positionsColors2, sizeof(positionsColors2), bufferLayout2vec3);
 		pIndexBuffer = std::make_unique<IndexBuffer>(indices, sizeof(indices) / sizeof(GLuint));
 
 		pVao->addVertexBuffer(*pPositionsColorsVbo);
-		pVao->setIndexBuffer(*pIndexBuffer);
+		pVao->setIndexBuffer(*pIndexBuffer);*/
+
+		pVao1 = std::make_unique<VertexArray>();
+		pPositionsColorsVbo1 = std::make_unique<VertexBuffer>(mVertices.data(), sizeof(float)*mVertices.size(), bufferLayout2vec3);
+		pIndexBuffer1 = std::make_unique<IndexBuffer>(mIndices.data(), mIndices.size());
+		pVao1->addVertexBuffer(*pPositionsColorsVbo1);
+		pVao1->setIndexBuffer(*pIndexBuffer1);
 		//---------------------------------------//
 
 
@@ -197,7 +271,7 @@ namespace Engine {
 
 			camera.setProjectionMode(perspectiveCamera ? Camera::ProjectionMode::Perspective : Camera::ProjectionMode::Orthographic);
 			pShaderProgram->setMatrix4("viewProjectionMatrix", camera.getProjectionMatrix() * camera.getViewMatrix());
-			RendererOpenGL::draw(*pVao);
+			RendererOpenGL::draw(*pVao1);
 
 
 			//---------------------------------------//

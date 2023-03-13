@@ -3,6 +3,7 @@
 #include <memory>
 #include "EngineCore/Event.hpp"
 #include "EngineCore/Camera.hpp"
+#include <vector>
 
 namespace Engine {
 	class Application {
@@ -34,6 +35,11 @@ namespace Engine {
 		std::unique_ptr<class Window> mpWindow;
 		EventDispatcher mEventDispatcher;
 		bool mbCloseWindow = false;
+		std::vector<float> mVertices;
+		std::vector<int> mIndices;
+		int sectorCount = 10;
+		int stackCount = 10;
+		float radius = 1;
 
 	};
 }
