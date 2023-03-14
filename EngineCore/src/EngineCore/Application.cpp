@@ -11,6 +11,7 @@
 #include "EngineCore/Rendering/OpenGL/VertexBuffer.hpp"
 #include "EngineCore/Rendering/OpenGL/VertexArray.hpp"
 #include "EngineCore/Rendering/OpenGL/IndexBuffer.h"
+#include "EngineCore/Rendering/OpenGL/Texture2D.hpp"
 #include "EngineCore/Camera.hpp"
 #include "EngineCore/Rendering/OpenGL/RendererOpenGL.hpp"
 #include "EngineCore/Modules/UIModule.hpp"
@@ -22,42 +23,129 @@
 
 namespace Engine {
 
-	GLfloat positionsColors2[] = {
-		0.0f, -0.5f, -0.5f,   1.0f, 1.0f, 0.0f,
-		0.0f,  0.5f, -0.5f,   0.0f, 1.0f, 1.0f,
-		0.0f, -0.5f,  0.5f,   1.0f, 0.0f, 1.0f,
-		0.0f,  0.5f,  0.5f,   1.0f, 0.0f, 0.0f
+	GLfloat positionsColorsCoords[] = {
+		0.0f, -0.5f, -0.5f,   1.0f, 1.0f, 0.0f,   2.f, -1.f,
+		0.0f,  0.5f, -0.5f,   0.0f, 1.0f, 1.0f,  -1.f, -1.f,
+		0.0f, -0.5f,  0.5f,   1.0f, 0.0f, 1.0f,   2.f,  2.f,
+		0.0f,  0.5f,  0.5f,   1.0f, 0.0f, 0.0f,  -1.f,  2.f,
+		0.0f, -0.5f, -0.5f,   1.0f, 1.0f, 0.0f,   10.f, 0.f,
+		0.0f,  0.5f, -0.5f,   0.0f, 1.0f, 1.0f,   0.f,  0.f,
+		0.0f, -0.5f,  0.5f,   1.0f, 0.0f, 1.0f,   10.f, 10.f,
+		0.0f,  0.5f,  0.5f,   1.0f, 0.0f, 0.0f,   0.f,  10.f
 	};
 
 	GLuint indices[] = {
 		0, 1, 2, 3, 2, 1
 	};
-
+	//------------------------- TEST FUNCTIONS FOR SIMPLE TEXTURE GENERATION --------------//
+	void generate_circle(unsigned char* data,
+		const unsigned int width,
+		const unsigned int height,
+		const unsigned int center_x,
+		const unsigned int center_y,
+		const unsigned int radius,
+		const unsigned char color_r,
+		const unsigned char color_g,
+		const unsigned char color_b)
+	{
+		for (unsigned int x = 0; x < width; ++x)
+		{
+			for (unsigned int y = 0; y < height; ++y)
+			{
+				if ((x - center_x) * (x - center_x) + (y - center_y) * (y - center_y) < radius * radius)
+				{
+					data[3 * (x + width * y) + 0] = color_r;
+					data[3 * (x + width * y) + 1] = color_g;
+					data[3 * (x + width * y) + 2] = color_b;
+				}
+			}
+		}
+	}
+	void generate_smile_texture(unsigned char* data,
+		const unsigned int width,
+		const unsigned int height)
+	{
+		// background
+		for (unsigned int x = 0; x < width; ++x)
+		{
+			for (unsigned int y = 0; y < height; ++y)
+			{
+				data[3 * (x + width * y) + 0] = 200;
+				data[3 * (x + width * y) + 1] = 191;
+				data[3 * (x + width * y) + 2] = 231;
+			}
+		}
+		// face
+		generate_circle(data, width, height, width * 0.5, height * 0.5, width * 0.4, 255, 255, 0);
+		// smile
+		generate_circle(data, width, height, width * 0.5, height * 0.4, width * 0.2, 0, 0, 0);
+		generate_circle(data, width, height, width * 0.5, height * 0.45, width * 0.2, 255, 255, 0);
+		// eyes
+		generate_circle(data, width, height, width * 0.35, height * 0.6, width * 0.07, 255, 0, 255);
+		generate_circle(data, width, height, width * 0.65, height * 0.6, width * 0.07, 0, 0, 255);
+	}
+	void generate_quads_texture(unsigned char* data,
+		const unsigned int width,
+		const unsigned int height)
+	{
+		for (unsigned int x = 0; x < width; ++x)
+		{
+			for (unsigned int y = 0; y < height; ++y)
+			{
+				if ((x < width / 2 && y < height / 2) || x >= width / 2 && y >= height / 2)
+				{
+					data[3 * (x + width * y) + 0] = 0;
+					data[3 * (x + width * y) + 1] = 0;
+					data[3 * (x + width * y) + 2] = 0;
+				}
+				else
+				{
+					data[3 * (x + width * y) + 0] = 255;
+					data[3 * (x + width * y) + 1] = 255;
+					data[3 * (x + width * y) + 2] = 255;
+				}
+			}
+		}
+	}
+	//---------------------------------------//
 	const char* vertexShader =
 		R"(#version 460
-           layout(location = 0) in vec3 vertexPosition;
-           layout(location = 1) in vec3 vertexColor;
-           uniform mat4 modelMatrix;
-           uniform mat4 viewProjectionMatrix;
+           layout(location = 0) in vec3 vertex_position;
+           layout(location = 1) in vec3 vertex_color;
+           layout(location = 2) in vec2 texture_coord;
+           uniform mat4 model_matrix;
+           uniform mat4 view_projection_matrix;
+           uniform int current_frame; 
            out vec3 color;
+           out vec2 tex_coord_smile;
+           out vec2 tex_coord_quads;
            void main() {
-              color = vertexColor;
-              gl_Position = viewProjectionMatrix * modelMatrix * vec4(vertexPosition, 1.0);
+              color = vertex_color;
+              tex_coord_smile = texture_coord;
+              tex_coord_quads = texture_coord + vec2(current_frame / 1000.f, current_frame / 1000.f);
+              gl_Position = view_projection_matrix * model_matrix * vec4(vertex_position, 1.0);
            }
         )";
 
 	const char* fragmentShader =
 		R"(#version 460
            in vec3 color;
-           out vec4 fragColor;
+           in vec2 tex_coord_smile;
+           in vec2 tex_coord_quads;
+           layout (binding = 0) uniform sampler2D InTexture_Smile;
+           layout (binding = 1) uniform sampler2D InTexture_Quads;
+           out vec4 frag_color;
            void main() {
-              fragColor = vec4(color, 1.0);
+              //frag_color = vec4(color, 1.0);
+              frag_color = texture(InTexture_Smile, tex_coord_smile) * texture(InTexture_Quads, tex_coord_quads);
            }
         )";
 
 	std::unique_ptr<ShaderProgram> pShaderProgram;
 	std::unique_ptr<VertexBuffer> pPositionsColorsVbo;
 	std::unique_ptr<IndexBuffer> pIndexBuffer;
+	std::unique_ptr<Texture2D> p_texture_smile;
+	std::unique_ptr<Texture2D> p_texture_quads;
 	std::unique_ptr<VertexArray> pVao;
 	float scale[3] = { 1.f, 1.f, 1.f };
 	float rotate = 0.f;
@@ -142,6 +230,20 @@ namespace Engine {
 			}
 		);
 
+		const unsigned int width = 1000;
+		const unsigned int height = 1000;
+		const unsigned int channels = 3;
+		auto* data = new unsigned char[width * height * channels];
+		generate_smile_texture(data, width, height);
+		
+		p_texture_smile = std::make_unique<Texture2D>(data, width, height);
+		p_texture_smile->bind(0);
+		
+		generate_quads_texture(data, width, height);
+		p_texture_quads = std::make_unique<Texture2D>(data, width, height);
+		p_texture_quads->bind(1);
+
+		delete[] data;
 		//---------------------------------------//
 		pShaderProgram = std::make_unique<ShaderProgram>(vertexShader, fragmentShader);
 		if (!pShaderProgram->isCompiled())
@@ -155,20 +257,21 @@ namespace Engine {
 		};
 
 
-		BufferLayout bufferLayout2vec3
+		BufferLayout bufferLayoutVec3Vec3Vec2
 		{
 			ShaderDataType::Float3,
-			ShaderDataType::Float3
+			ShaderDataType::Float3,
+			ShaderDataType::Float2
 		};
 
 		pVao = std::make_unique<VertexArray>();
-		pPositionsColorsVbo = std::make_unique<VertexBuffer>(positionsColors2, sizeof(positionsColors2), bufferLayout2vec3);
+		pPositionsColorsVbo = std::make_unique<VertexBuffer>(positionsColorsCoords, sizeof(positionsColorsCoords), bufferLayoutVec3Vec3Vec2);
 		pIndexBuffer = std::make_unique<IndexBuffer>(indices, sizeof(indices) / sizeof(GLuint));
 
 		pVao->addVertexBuffer(*pPositionsColorsVbo);
 		pVao->setIndexBuffer(*pIndexBuffer);
 		//---------------------------------------//
-
+		static int current_frame = 0;
 
 		while (!mbCloseWindow) {
 			RendererOpenGL::setClearColor(mBackgroundColor[0], mBackgroundColor[1], mBackgroundColor[2], mBackgroundColor[3]);
@@ -193,10 +296,11 @@ namespace Engine {
 				translate[0], translate[1], translate[2], 1);
 
 			glm::mat4 modelMatrix = translateMatrix * rotateMatrix * scaleMatrix;
-			pShaderProgram->setMatrix4("modelMatrix", modelMatrix);
+			pShaderProgram->setMatrix4("model_matrix", modelMatrix);
+			pShaderProgram->setInt("current_frame", current_frame++);
 
 			camera.setProjectionMode(perspectiveCamera ? Camera::ProjectionMode::Perspective : Camera::ProjectionMode::Orthographic);
-			pShaderProgram->setMatrix4("viewProjectionMatrix", camera.getProjectionMatrix() * camera.getViewMatrix());
+			pShaderProgram->setMatrix4("view_projection_matrix", camera.getProjectionMatrix() * camera.getViewMatrix());
 			RendererOpenGL::draw(*pVao);
 
 

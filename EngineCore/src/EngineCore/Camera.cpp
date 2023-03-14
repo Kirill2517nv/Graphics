@@ -89,6 +89,7 @@ namespace Engine {
         if (mUpdateViewMatrix)
         {
             updateViewMatrix();
+            mUpdateViewMatrix = false;
         }
         return mViewMatrix;
     }

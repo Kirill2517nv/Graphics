@@ -86,6 +86,11 @@ namespace Engine {
 		glUniformMatrix4fv(glGetUniformLocation(mId, name), 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
+	void ShaderProgram::setInt(const char* name, const int value) const
+	{
+		glUniform1i(glGetUniformLocation(mId, name), value);
+	}
+
 	ShaderProgram& ShaderProgram::operator=(ShaderProgram&& shaderProgram) noexcept {
 		glDeleteProgram(mId);
 		mId = shaderProgram.mId;

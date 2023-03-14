@@ -19,6 +19,7 @@ namespace Engine {
 		static void unbind();
 		bool isCompiled() const { return mIsCompiled; };
 		void setMatrix4(const char* name, const glm::mat4x4 matrix);
+		void setInt(const char* name, const int value) const;
 
 	private:
 		bool mIsCompiled = false;
