@@ -21,8 +21,18 @@ namespace Engine {
         void setRotation(const glm::vec3& rotation);
         void setPositionRotation(const glm::vec3& position, const glm::vec3& rotation);
         void setProjectionMode(const ProjectionMode projectionMode);
+        // camera frustum parameters
+        void setFarClipPlane(const float far);
+        void setNearClipPlane(const float near);
+        void setViewportSize(const float width, const float height);
+        void setFieldOfView(const float fov);
+        
         const glm::mat4& getViewMatrix();
         const glm::mat4& getProjectionMatrix() const { return mProjectionMatrix; }
+
+        const float getFarClipPlane() const { return m_far_clip_plane; }
+        const float getNearClipPlane() const { return m_near_clip_plane; }
+        const float getFieldOfView() const { return m_field_of_view; }
 
         void moveForward(const float delta);
         void moveRight(const float delta);
@@ -47,6 +57,12 @@ namespace Engine {
         glm::vec3 mDirection;
         glm::vec3 mRight;
         glm::vec3 mUp;
+
+        float m_far_clip_plane{ 100.f };
+        float m_near_clip_plane{ 0.1f };
+        float m_viewport_width{ 800.f };
+        float m_viewport_height{ 600.f };
+        float m_field_of_view{ 60.f };
 
         static constexpr glm::vec3 sWorldUp{ 0.f, 0.f, 1.f };
         static constexpr glm::vec3 sWorldRight{ 0.f, -1.f, 0.f };

@@ -1,7 +1,7 @@
 #include "EngineCore/Camera.hpp"
 
 #include <glm/trigonometric.hpp>
-#include <glm/ext/matrix_transform.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace Engine {
     Camera::Camera(const glm::vec3& position,
@@ -41,14 +41,7 @@ namespace Engine {
 
     void Camera::updateProjectionMatrix() {
         if (mProjectionMode == ProjectionMode::Perspective) {
-            float r = 0.1f;
-            float t = 0.1f;
-            float f = 100;
-            float n = 0.1f;
-            mProjectionMatrix = glm::mat4(n / r, 0, 0, 0,
-                0, n / t, 0, 0,
-                0, 0, (-f - n) / (f - n), -1,
-                0, 0, -2 * f * n / (f - n), 0);
+            mProjectionMatrix = glm::perspective(glm::radians(m_field_of_view), m_viewport_width / m_viewport_height, m_near_clip_plane, m_far_clip_plane);
         }
         else
         {
@@ -81,6 +74,31 @@ namespace Engine {
 
     void Camera::setProjectionMode(const ProjectionMode projection_mode) {
         mProjectionMode = projection_mode;
+        updateProjectionMatrix();
+    }
+
+    void Camera::setFarClipPlane(const float far)
+    {
+        m_far_clip_plane = far;
+        updateProjectionMatrix();
+    }
+
+    void Camera::setNearClipPlane(const float near)
+    {
+        m_near_clip_plane = near;
+        updateProjectionMatrix();
+    }
+
+    void Camera::setViewportSize(const float width, const float height)
+    {
+        m_viewport_width = width;
+        m_viewport_height = height;
+        updateProjectionMatrix();
+    }
+
+    void Camera::setFieldOfView(const float fov)
+    {
+        m_field_of_view = fov;
         updateProjectionMatrix();
     }
 

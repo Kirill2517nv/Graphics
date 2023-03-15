@@ -181,6 +181,7 @@ namespace Engine {
 	int Application::start(unsigned int window_width, unsigned int window_height, const char* title)
 	{
 		mpWindow = std::make_unique<Window>(title, window_width, window_height);
+		camera.setViewportSize(static_cast<float>(window_width), static_cast<float>(window_height));
 
 		mEventDispatcher.addEventListener<EventMouseMoved>(
 			[](EventMouseMoved& event) {
@@ -189,15 +190,17 @@ namespace Engine {
 		);
 
 		mEventDispatcher.addEventListener<EventWindowResize>(
-			[](EventWindowResize& event) {
+			[&](EventWindowResize& event) {
 				LOG_INFO("[WindowResized] Changed size to {0} x {1}", event.width, event.height);
+				camera.setViewportSize(event.width, event.height);
+				draw();
 			}
 		);
 
 		mEventDispatcher.addEventListener<EventWindowClose>(
 			[&](EventWindowClose& event) {
 				LOG_INFO("[WindowClose]");
-				mbCloseWindow = true;
+				close();
 			}
 		);
 
@@ -282,72 +285,12 @@ namespace Engine {
 		pVao->addVertexBuffer(*pPositionsColorsVbo);
 		pVao->setIndexBuffer(*pIndexBuffer);
 		//---------------------------------------//
-		static int current_frame = 0;
+		
 		
 		RendererOpenGL::enableDepthBuffer();
 
 		while (!mbCloseWindow) {
-			RendererOpenGL::setClearColor(mBackgroundColor[0], mBackgroundColor[1], mBackgroundColor[2], mBackgroundColor[3]);
-			RendererOpenGL::clear();
-
-			pShaderProgram->bind();
-
-			glm::mat4 scaleMatrix(scale[0], 0, 0, 0,
-				0, scale[1], 0, 0,
-				0, 0, scale[2], 0,
-				0, 0, 0, 1);
-
-			float rotateInRadians = glm::radians(rotate);
-			glm::mat4 rotateMatrix(cos(rotateInRadians), sin(rotateInRadians), 0, 0,
-				-sin(rotateInRadians), cos(rotateInRadians), 0, 0,
-				0, 0, 1, 0,
-				0, 0, 0, 1);
-
-			glm::mat4 translateMatrix(1, 0, 0, 0,
-				0, 1, 0, 0,
-				0, 0, 1, 0,
-				translate[0], translate[1], translate[2], 1);
-
-			glm::mat4 modelMatrix = translateMatrix * rotateMatrix * scaleMatrix;
-			pShaderProgram->setMatrix4("model_matrix", modelMatrix);
-			pShaderProgram->setInt("current_frame", current_frame++);
-
-			camera.setProjectionMode(perspectiveCamera ? Camera::ProjectionMode::Perspective : Camera::ProjectionMode::Orthographic);
-			pShaderProgram->setMatrix4("view_projection_matrix", camera.getProjectionMatrix() * camera.getViewMatrix());
-			RendererOpenGL::draw(*pVao);
-
-			for (const glm::vec3& current_position : positions)
-			{
-				glm::mat4 translate_matrix(1, 0, 0, 0,
-					0, 1, 0, 0,
-					0, 0, 1, 0,
-					current_position[0], current_position[1], current_position[2], 1);
-				pShaderProgram->setMatrix4("model_matrix", translate_matrix);
-				RendererOpenGL::draw(*pVao);
-			}
-
-			//---------------------------------------//
-			UIModule::onUiDrawBegin();
-			bool show = true;
-			UIModule::ShowExampleAppDockSpace(&show);
-			ImGui::ShowDemoWindow();
-			ImGui::Begin("Background Color Window");
-			ImGui::ColorEdit4("Background Color", mBackgroundColor);
-			ImGui::SliderFloat3("scale", scale, 0.f, 2.f);
-			ImGui::SliderFloat("rotate", &rotate, 0.f, 360.f);
-			ImGui::SliderFloat3("translate", translate, -1.f, 1.f);
-			ImGui::SliderFloat3("camera position", cameraPosition, -10.f, 10.f);
-			ImGui::SliderFloat3("camera rotation", cameraRotation, 0, 360.f);
-			ImGui::Checkbox("Perspective camera", &perspectiveCamera);
-			ImGui::End();
-			//---------------------------------------//
-
-			onUiDraw();
-
-			UIModule::onUiDrawEnd();
-
-			mpWindow->onUpdate();
-			onUpdate();
+			draw();
 		}
 		mpWindow = nullptr;
 
@@ -356,5 +299,52 @@ namespace Engine {
 
 	glm::vec2 Application::getCurrentCursorPosition() const {
 		return mpWindow->getCurrentCursorPosition();
+	}
+	void Application::draw() {
+		static int current_frame = 0;
+		RendererOpenGL::setClearColor(mBackgroundColor[0], mBackgroundColor[1], mBackgroundColor[2], mBackgroundColor[3]);
+		RendererOpenGL::clear();
+
+		pShaderProgram->bind();
+
+		glm::mat4 scaleMatrix(scale[0], 0, 0, 0,
+			0, scale[1], 0, 0,
+			0, 0, scale[2], 0,
+			0, 0, 0, 1);
+
+		float rotateInRadians = glm::radians(rotate);
+		glm::mat4 rotateMatrix(cos(rotateInRadians), sin(rotateInRadians), 0, 0,
+			-sin(rotateInRadians), cos(rotateInRadians), 0, 0,
+			0, 0, 1, 0,
+			0, 0, 0, 1);
+
+		glm::mat4 translateMatrix(1, 0, 0, 0,
+			0, 1, 0, 0,
+			0, 0, 1, 0,
+			translate[0], translate[1], translate[2], 1);
+
+		glm::mat4 modelMatrix = translateMatrix * rotateMatrix * scaleMatrix;
+		pShaderProgram->setMatrix4("model_matrix", modelMatrix);
+		pShaderProgram->setInt("current_frame", current_frame++);
+
+		pShaderProgram->setMatrix4("view_projection_matrix", camera.getProjectionMatrix() * camera.getViewMatrix());
+		RendererOpenGL::draw(*pVao);
+
+		for (const glm::vec3& current_position : positions)
+		{
+			glm::mat4 translate_matrix(1, 0, 0, 0,
+				0, 1, 0, 0,
+				0, 0, 1, 0,
+				current_position[0], current_position[1], current_position[2], 1);
+			pShaderProgram->setMatrix4("model_matrix", translate_matrix);
+			RendererOpenGL::draw(*pVao);
+		}
+
+		UIModule::onUiDrawBegin();
+		onUiDraw();
+		UIModule::onUiDrawEnd();
+
+		mpWindow->onUpdate();
+		onUpdate();
 	}
 }

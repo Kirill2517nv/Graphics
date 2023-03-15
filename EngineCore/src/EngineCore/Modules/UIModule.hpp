@@ -10,8 +10,6 @@ namespace Engine {
         static void onWindowClose();
         static void onUiDrawBegin();
         static void onUiDrawEnd();
-
-        static void ShowExampleAppDockSpace(bool* p_open);
     };
 
 }
