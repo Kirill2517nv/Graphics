@@ -23,20 +23,30 @@
 
 namespace Engine {
 
-	GLfloat positionsColorsCoords[] = {
-		0.0f, -0.5f, -0.5f,   1.0f, 1.0f, 0.0f,   2.f, -1.f,
-		0.0f,  0.5f, -0.5f,   0.0f, 1.0f, 1.0f,  -1.f, -1.f,
-		0.0f, -0.5f,  0.5f,   1.0f, 0.0f, 1.0f,   2.f,  2.f,
-		0.0f,  0.5f,  0.5f,   1.0f, 0.0f, 0.0f,  -1.f,  2.f,
-		0.0f, -0.5f, -0.5f,   1.0f, 1.0f, 0.0f,   10.f, 0.f,
-		0.0f,  0.5f, -0.5f,   0.0f, 1.0f, 1.0f,   0.f,  0.f,
-		0.0f, -0.5f,  0.5f,   1.0f, 0.0f, 1.0f,   10.f, 10.f,
-		0.0f,  0.5f,  0.5f,   1.0f, 0.0f, 0.0f,   0.f,  10.f
+	const float textScaleS = 10;
+	GLfloat cubePos[] = {
+		// front
+		-1.0f, -1.f, -1.f,   textScaleS, 0.f,
+		-1.0f,  1.f, -1.f,   0.f, 0.f,
+		-1.0f, -1.f,  1.f,   textScaleS, textScaleS,
+		-1.0f,  1.f,  1.f,   0.f, textScaleS,
+
+		// back
+		 1.0f, -1.f, -1.f,   textScaleS, 0.f,
+		 1.0f,  1.f, -1.f,   0.f, 0.f,
+		 1.0f, -1.f,  1.f,   textScaleS, textScaleS,
+		 1.0f,  1.f,  1.f,   0.f, textScaleS
 	};
 
 	GLuint indices[] = {
-		0, 1, 2, 3, 2, 1
+		0, 1, 2, 3, 2, 1, // front
+		4, 5, 6, 7, 6, 5, // back
+		0, 4, 6, 0, 2, 6, // right
+		1, 5, 3, 3, 7, 5, // left
+		3, 7, 2, 7, 6, 2, // top
+		1, 5, 0, 5, 0, 4  // bottom
 	};
+
 	//------------------------- TEST FUNCTIONS FOR SIMPLE TEXTURE GENERATION --------------//
 	void generate_circle(unsigned char* data,
 		const unsigned int width,
@@ -111,16 +121,16 @@ namespace Engine {
 	const char* vertexShader =
 		R"(#version 460
            layout(location = 0) in vec3 vertex_position;
-           layout(location = 1) in vec3 vertex_color;
-           layout(location = 2) in vec2 texture_coord;
+           //layout(location = 1) in vec3 vertex_color;
+           layout(location = 1) in vec2 texture_coord;
            uniform mat4 model_matrix;
            uniform mat4 view_projection_matrix;
            uniform int current_frame; 
-           out vec3 color;
+           //out vec3 color;
            out vec2 tex_coord_smile;
            out vec2 tex_coord_quads;
            void main() {
-              color = vertex_color;
+              //color = vertex_color;
               tex_coord_smile = texture_coord;
               tex_coord_quads = texture_coord + vec2(current_frame / 1000.f, current_frame / 1000.f);
               gl_Position = view_projection_matrix * model_matrix * vec4(vertex_position, 1.0);
@@ -129,7 +139,7 @@ namespace Engine {
 
 	const char* fragmentShader =
 		R"(#version 460
-           in vec3 color;
+           //in vec3 color;
            in vec2 tex_coord_smile;
            in vec2 tex_coord_quads;
            layout (binding = 0) uniform sampler2D InTexture_Smile;
@@ -151,6 +161,14 @@ namespace Engine {
 	float rotate = 0.f;
 	float translate[3] = { 0.f, 0.f, 0.f };
 	float mBackgroundColor[4] = { 0.33f, 0.33f, 0.33f, 0.f };
+
+	std::array<glm::vec3, 5> positions = {
+											glm::vec3(-2.f, -2.f, -4.f),
+											glm::vec3(-5.f,  0.f,  3.f),
+											glm::vec3(2.f,  1.f, -2.f),
+											glm::vec3(4.f, -3.f,  3.f),
+											glm::vec3(1.f, -7.f,  1.f)
+										};
 
 	Application::Application() {
 		LOG_INFO("Starting application");
@@ -251,27 +269,22 @@ namespace Engine {
 			return false;
 		}
 
-		BufferLayout bufferLayout1vec3
-		{
-			ShaderDataType::Float3
-		};
-
-
 		BufferLayout bufferLayoutVec3Vec3Vec2
 		{
-			ShaderDataType::Float3,
 			ShaderDataType::Float3,
 			ShaderDataType::Float2
 		};
 
 		pVao = std::make_unique<VertexArray>();
-		pPositionsColorsVbo = std::make_unique<VertexBuffer>(positionsColorsCoords, sizeof(positionsColorsCoords), bufferLayoutVec3Vec3Vec2);
+		pPositionsColorsVbo = std::make_unique<VertexBuffer>(cubePos, sizeof(cubePos), bufferLayoutVec3Vec3Vec2);
 		pIndexBuffer = std::make_unique<IndexBuffer>(indices, sizeof(indices) / sizeof(GLuint));
 
 		pVao->addVertexBuffer(*pPositionsColorsVbo);
 		pVao->setIndexBuffer(*pIndexBuffer);
 		//---------------------------------------//
 		static int current_frame = 0;
+		
+		RendererOpenGL::enableDepthBuffer();
 
 		while (!mbCloseWindow) {
 			RendererOpenGL::setClearColor(mBackgroundColor[0], mBackgroundColor[1], mBackgroundColor[2], mBackgroundColor[3]);
@@ -303,6 +316,15 @@ namespace Engine {
 			pShaderProgram->setMatrix4("view_projection_matrix", camera.getProjectionMatrix() * camera.getViewMatrix());
 			RendererOpenGL::draw(*pVao);
 
+			for (const glm::vec3& current_position : positions)
+			{
+				glm::mat4 translate_matrix(1, 0, 0, 0,
+					0, 1, 0, 0,
+					0, 0, 1, 0,
+					current_position[0], current_position[1], current_position[2], 1);
+				pShaderProgram->setMatrix4("model_matrix", translate_matrix);
+				RendererOpenGL::draw(*pVao);
+			}
 
 			//---------------------------------------//
 			UIModule::onUiDrawBegin();

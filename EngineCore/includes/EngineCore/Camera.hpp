@@ -13,9 +13,9 @@ namespace Engine {
             Orthographic
         };
 
-        Camera(const glm::vec3& position = { 0, 0, 0 },
-            const glm::vec3& rotation = { 0, 0, 0 },
-            const ProjectionMode projectionMode = ProjectionMode::Perspective);
+        Camera( const glm::vec3& position = { 0, 0, 0 },
+                const glm::vec3& rotation = { 0, 0, 0 },
+                const ProjectionMode projectionMode = ProjectionMode::Perspective);
 
         void setPosition(const glm::vec3& position);
         void setRotation(const glm::vec3& rotation);
