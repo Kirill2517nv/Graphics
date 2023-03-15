@@ -35,7 +35,7 @@ namespace Engine {
     }
 
     void RendererOpenGL::clear() {
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
     void RendererOpenGL::setViewport(const unsigned int width, const unsigned int height, const unsigned int leftOffset, const unsigned int bottomOffset) {
