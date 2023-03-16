@@ -31,6 +31,15 @@ namespace Engine {
 		float cameraPosition[3] = { 0.f, 0.f, 1.f };
 		float cameraRotation[3] = { 0.f, 0.f, 0.f };
 
+		// lightning parameters
+		float light_source_pos[3] = { 0.f, 0.f, 0.f };
+		float light_source_color[3] = {1.f, 1.f, 1.f};
+
+		float ambient_factor = 0.1f;
+		float diffuse_factor = 0.2f;;
+		float specular_factor = 2;
+		float shininess = 2;
+
 		float camera_fov = 60.f;
 		float camera_near_plane = 0.1f;
 		float camera_far_plane = 100.f;

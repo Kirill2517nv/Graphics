@@ -86,9 +86,19 @@ namespace Engine {
 		glUniformMatrix4fv(glGetUniformLocation(mId, name), 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
+	void ShaderProgram::setVec3(const char* name, const glm::vec3 vec) const
+	{
+		glUniform3f(glGetUniformLocation(mId, name), vec.x, vec.y, vec.z);
+	}
+
 	void ShaderProgram::setInt(const char* name, const int value) const
 	{
 		glUniform1i(glGetUniformLocation(mId, name), value);
+	}
+
+	void ShaderProgram::setFloat(const char* name, const float value) const
+	{
+		glUniform1f(glGetUniformLocation(mId, name), value);
 	}
 
 	ShaderProgram& ShaderProgram::operator=(ShaderProgram&& shaderProgram) noexcept {

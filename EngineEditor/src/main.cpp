@@ -163,6 +163,21 @@ class EngineEditor : public Engine::Application {
 			camera.setProjectionMode(perspectiveCamera ? Engine::Camera::ProjectionMode::Perspective : Engine::Camera::ProjectionMode::Orthographic);
 		}
 		ImGui::End();
+		
+		ImGui::Begin("Light");
+		if (ImGui::SliderFloat3("light source position", light_source_pos, -10.f, 10.f)) {
+		}
+		if (ImGui::ColorEdit3("light color", light_source_color)) {
+		}
+		if (ImGui::SliderFloat("ambient_factor", &ambient_factor, 0.f, 10.f)) {
+		}
+		if (ImGui::SliderFloat("diffuse_factor", &diffuse_factor, 0.f, 10.f)) {
+		}
+		if (ImGui::SliderFloat("specular_factor", &specular_factor, 0.f, 10.f)) {
+		}
+		if (ImGui::SliderFloat("shininess", &shininess, 0.f, 120.f)) {
+		}
+		ImGui::End();
 	}
 
 	int frame = 0;

@@ -24,27 +24,54 @@
 namespace Engine {
 
 	const float textScaleS = 10;
-	GLfloat cubePos[] = {
-		// front
-		-1.0f, -1.f, -1.f,   textScaleS, 0.f,
-		-1.0f,  1.f, -1.f,   0.f, 0.f,
-		-1.0f, -1.f,  1.f,   textScaleS, textScaleS,
-		-1.0f,  1.f,  1.f,   0.f, textScaleS,
+	// cube
+	GLfloat pos_norm_uv[] = {
+		//    position             normal            UV                  index
 
-		// back
-		 1.0f, -1.f, -1.f,   textScaleS, 0.f,
-		 1.0f,  1.f, -1.f,   0.f, 0.f,
-		 1.0f, -1.f,  1.f,   textScaleS, textScaleS,
-		 1.0f,  1.f,  1.f,   0.f, textScaleS
+		// FRONT
+		-1.0f, -1.f, -1.f,    -1.f,  0.f,  0.f,     0.f, 0.f,              // 0
+		-1.0f,  1.f, -1.f,    -1.f,  0.f,  0.f,     1.f, 0.f,              // 1
+		-1.0f,  1.f,  1.f,    -1.f,  0.f,  0.f,     1.f, 1.f,              // 2
+		-1.0f, -1.f,  1.f,    -1.f,  0.f,  0.f,     0.f, 1.f,              // 3
+
+		// BACK                                  
+		 1.0f, -1.f, -1.f,     1.f,  0.f,  0.f,     1.f, 0.f,              // 4
+		 1.0f,  1.f, -1.f,     1.f,  0.f,  0.f,     0.f, 0.f,              // 5
+		 1.0f,  1.f,  1.f,     1.f,  0.f,  0.f,     0.f, 1.f,              // 6
+		 1.0f, -1.f,  1.f,     1.f,  0.f,  0.f,     1.f, 1.f,              // 7
+
+		 // RIGHT
+		 -1.0f,  1.f, -1.f,     0.f,  1.f,  0.f,     0.f, 0.f,              // 8
+		  1.0f,  1.f, -1.f,     0.f,  1.f,  0.f,     1.f, 0.f,              // 9
+		  1.0f,  1.f,  1.f,     0.f,  1.f,  0.f,     1.f, 1.f,              // 10
+		 -1.0f,  1.f,  1.f,     0.f,  1.f,  0.f,     0.f, 1.f,              // 11
+
+		 // LEFT
+		 -1.0f, -1.f, -1.f,     0.f, -1.f,  0.f,     1.f, 0.f,              // 12
+		  1.0f, -1.f, -1.f,     0.f, -1.f,  0.f,     0.f, 0.f,              // 13
+		  1.0f, -1.f,  1.f,     0.f, -1.f,  0.f,     0.f, 1.f,              // 14
+		 -1.0f, -1.f,  1.f,     0.f, -1.f,  0.f,     1.f, 1.f,              // 15
+
+		 // TOP
+		 -1.0f, -1.f,  1.f,     0.f,  0.f,  1.f,     0.f, 0.f,              // 16
+		 -1.0f,  1.f,  1.f,     0.f,  0.f,  1.f,     1.f, 0.f,              // 17
+		  1.0f,  1.f,  1.f,     0.f,  0.f,  1.f,     1.f, 1.f,              // 18
+		  1.0f, -1.f,  1.f,     0.f,  0.f,  1.f,     0.f, 1.f,              // 19
+
+		  // BOTTOM
+		  -1.0f, -1.f, -1.f,    0.f,  0.f, -1.f,     0.f, 1.f,              // 20
+		  -1.0f,  1.f, -1.f,    0.f,  0.f, -1.f,     1.f, 1.f,              // 21
+		   1.0f,  1.f, -1.f,    0.f,  0.f, -1.f,     1.f, 0.f,              // 22
+		   1.0f, -1.f, -1.f,    0.f,  0.f, -1.f,     0.f, 0.f,              // 23
 	};
-
+	// cube indices
 	GLuint indices[] = {
-		0, 1, 2, 3, 2, 1, // front
-		4, 5, 6, 7, 6, 5, // back
-		0, 4, 6, 0, 2, 6, // right
-		1, 5, 3, 3, 7, 5, // left
-		3, 7, 2, 7, 6, 2, // top
-		1, 5, 0, 5, 0, 4  // bottom
+		0,   1,  2,  2,  3,  0, // front
+		4,   5,  6,  6,  7,  4, // back
+		8,   9, 10, 10, 11,  8, // right
+		12, 13, 14, 14, 15, 12, // left
+		16, 17, 18, 18, 19, 16, // top
+		20, 21, 22, 22, 23, 20  // bottom
 	};
 
 	//------------------------- TEST FUNCTIONS FOR SIMPLE TEXTURE GENERATION --------------//
@@ -120,43 +147,106 @@ namespace Engine {
 	//---------------------------------------//
 	const char* vertexShader =
 		R"(#version 460
-           layout(location = 0) in vec3 vertex_position;
-           //layout(location = 1) in vec3 vertex_color;
-           layout(location = 1) in vec2 texture_coord;
-           uniform mat4 model_matrix;
-           uniform mat4 view_projection_matrix;
-           uniform int current_frame; 
-           //out vec3 color;
-           out vec2 tex_coord_smile;
-           out vec2 tex_coord_quads;
-           void main() {
-              //color = vertex_color;
-              tex_coord_smile = texture_coord;
-              tex_coord_quads = texture_coord + vec2(current_frame / 1000.f, current_frame / 1000.f);
-              gl_Position = view_projection_matrix * model_matrix * vec4(vertex_position, 1.0);
-           }
+			layout(location = 0) in vec3 vertex_position;
+			layout(location = 1) in vec3 vertex_normal;
+			layout(location = 2) in vec2 texture_coord;
+           
+			uniform mat4 model_matrix;
+			uniform mat4 view_projection_matrix;
+			uniform int current_frame; 
+           
+			out vec2 tex_coord_smile;
+			out vec2 tex_coord_quads;
+			out vec3 frag_position;
+			out vec3 frag_normal
+			
+			void main() {
+				tex_coord_smile = texture_coord;
+				tex_coord_quads = texture_coord + vec2(current_frame / 1000.f, current_frame / 1000.f);
+				gl_Position = view_projection_matrix * model_matrix * vec4(vertex_position, 1.0);
+				frag_normal = mat3(transpose(inverse(model_matrix))) * vertex_normal;
+				vec4 vertex_position_world = model_matrix * vec4(vertex_position, 1.0);
+				frag_position = vertex_position_world.xyz;
+				gl_Position = view_projection_matrix * vertex_position_world;
+			}
         )";
 
 	const char* fragmentShader =
 		R"(#version 460
-           //in vec3 color;
-           in vec2 tex_coord_smile;
-           in vec2 tex_coord_quads;
-           layout (binding = 0) uniform sampler2D InTexture_Smile;
-           layout (binding = 1) uniform sampler2D InTexture_Quads;
-           out vec4 frag_color;
-           void main() {
-              //frag_color = vec4(color, 1.0);
-              frag_color = texture(InTexture_Smile, tex_coord_smile) * texture(InTexture_Quads, tex_coord_quads);
+			in vec2 tex_coord_smile;
+			in vec2 tex_coord_quads;
+			in vec3 frag_position;
+			in vec3 frag_normal;
+			
+			layout (binding = 0) uniform sampler2D InTexture_Smile;
+			layout (binding = 1) uniform sampler2D InTexture_Quads;
+			
+			uniform vec3 camera_position;
+			uniform vec3 light_position;
+			uniform vec3 light_color;
+			uniform float ambient_factor;
+			uniform float diffuse_factor;
+			uniform float specular_factor;
+			uniform float shininess;
+			
+			out vec4 frag_color;
+			
+			void main() {
+				// ambient
+				vec3 ambient = ambient_factor * light_color;
+				
+				// diffuse
+				vec3 normal = normalize(frag_normal);
+				vec3 light_dir = normalize(light_position - frag_position);
+				vec3 diffuse = diffuse_factor * light_color * max(dot(normal, light_dir), 0.0);
+				
+				// specular
+				vec3 view_dir = normalize(camera_position - frag_position);
+				vec3 reflect_dir = reflect(-light_dir, normal);
+				float specular_value = pow(max(dot(view_dir, reflect_dir), 0.0), shininess);
+				vec3 specular = specular_factor * specular_value * light_color;
+				
+				//frag_color = texture(InTexture_Smile, tex_coord_smile) * texture(InTexture_Quads, tex_coord_quads);
+				frag_color = texture(InTexture_Smile, tex_coord_smile) * vec4(ambient + diffuse + specular, 1.f);
+			}
+        )";
+
+	
+	// LIGHT SOURCE SHADERS
+	const char* vertex_shader_light_source =
+		R"(#version 460
+			layout(location = 0) in vec3 vertex_position;
+			layout(location = 1) in vec3 vertex_color;
+
+			uniform mat4 model_matrix;
+			uniform mat4 view_projection_matrix;
+           
+			void main() {
+              gl_Position = view_projection_matrix * model_matrix * vec4(vertex_position * 0.1f, 1.0);
            }
         )";
 
+	const char* fragment_shader_light_source =
+		R"(#version 460
+			out vec4 frag_color;
+			
+			uniform vec3 light_color;
+			
+			void main() {
+				frag_color = vec4(light_color, 1.f);
+			}
+        )";
+
+	// light source cube
+	std::unique_ptr<ShaderProgram> pSP_light_source;
+	
+	// cube
 	std::unique_ptr<ShaderProgram> pShaderProgram;
 	std::unique_ptr<VertexBuffer> pPositionsColorsVbo;
 	std::unique_ptr<IndexBuffer> pIndexBuffer;
 	std::unique_ptr<Texture2D> p_texture_smile;
 	std::unique_ptr<Texture2D> p_texture_quads;
-	std::unique_ptr<VertexArray> pVao;
+	std::unique_ptr<VertexArray> p_cube_vao;
 	float scale[3] = { 1.f, 1.f, 1.f };
 	float rotate = 0.f;
 	float translate[3] = { 0.f, 0.f, 0.f };
@@ -278,12 +368,12 @@ namespace Engine {
 			ShaderDataType::Float2
 		};
 
-		pVao = std::make_unique<VertexArray>();
-		pPositionsColorsVbo = std::make_unique<VertexBuffer>(cubePos, sizeof(cubePos), bufferLayoutVec3Vec3Vec2);
+		p_cube_vao = std::make_unique<VertexArray>();
+		pPositionsColorsVbo = std::make_unique<VertexBuffer>(pos_norm_uv, sizeof(pos_norm_uv), bufferLayoutVec3Vec3Vec2);
 		pIndexBuffer = std::make_unique<IndexBuffer>(indices, sizeof(indices) / sizeof(GLuint));
 
-		pVao->addVertexBuffer(*pPositionsColorsVbo);
-		pVao->setIndexBuffer(*pIndexBuffer);
+		p_cube_vao->addVertexBuffer(*pPositionsColorsVbo);
+		p_cube_vao->setIndexBuffer(*pIndexBuffer);
 		//---------------------------------------//
 		
 		
@@ -328,7 +418,7 @@ namespace Engine {
 		pShaderProgram->setInt("current_frame", current_frame++);
 
 		pShaderProgram->setMatrix4("view_projection_matrix", camera.getProjectionMatrix() * camera.getViewMatrix());
-		RendererOpenGL::draw(*pVao);
+		RendererOpenGL::draw(*p_cube_vao);
 
 		for (const glm::vec3& current_position : positions)
 		{
@@ -337,7 +427,7 @@ namespace Engine {
 				0, 0, 1, 0,
 				current_position[0], current_position[1], current_position[2], 1);
 			pShaderProgram->setMatrix4("model_matrix", translate_matrix);
-			RendererOpenGL::draw(*pVao);
+			RendererOpenGL::draw(*p_cube_vao);
 		}
 
 		UIModule::onUiDrawBegin();
