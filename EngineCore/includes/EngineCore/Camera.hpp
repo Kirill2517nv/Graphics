@@ -17,6 +17,7 @@ namespace Engine {
                 const glm::vec3& rotation = { 0, 0, 0 },
                 const ProjectionMode projectionMode = ProjectionMode::Perspective);
 
+        glm::vec3 getPosition() const { return mPosition; };
         void setPosition(const glm::vec3& position);
         void setRotation(const glm::vec3& rotation);
         void setPositionRotation(const glm::vec3& position, const glm::vec3& rotation);

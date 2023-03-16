@@ -169,13 +169,13 @@ class EngineEditor : public Engine::Application {
 		}
 		if (ImGui::ColorEdit3("light color", light_source_color)) {
 		}
-		if (ImGui::SliderFloat("ambient_factor", &ambient_factor, 0.f, 10.f)) {
+		if (ImGui::SliderFloat("ambient_factor", &ambient_factor, 0.f, 3.f)) {
 		}
-		if (ImGui::SliderFloat("diffuse_factor", &diffuse_factor, 0.f, 10.f)) {
+		if (ImGui::SliderFloat("diffuse_factor", &diffuse_factor, 0.f, 3.f)) {
 		}
-		if (ImGui::SliderFloat("specular_factor", &specular_factor, 0.f, 10.f)) {
+		if (ImGui::SliderFloat("specular_factor", &specular_factor, 0.f, 3.f)) {
 		}
-		if (ImGui::SliderFloat("shininess", &shininess, 0.f, 120.f)) {
+		if (ImGui::SliderFloat("shininess", &shininess, 0.8f, 10.f)) {
 		}
 		ImGui::End();
 	}
@@ -187,7 +187,7 @@ int main()
 {
 	auto pEngineEditor = std::make_unique<EngineEditor>();
 
-	int returnCode = pEngineEditor->start(1024, 768, "Engine Editor");
+	int returnCode = pEngineEditor->start(1600, 900, "Engine Editor");
 
 	return returnCode;
 }

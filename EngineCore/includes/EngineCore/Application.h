@@ -28,11 +28,11 @@ namespace Engine {
 
 		glm::vec2 getCurrentCursorPosition() const;
 
-		float cameraPosition[3] = { 0.f, 0.f, 1.f };
+		float cameraPosition[3] = { 0.f, 0.f, 0.f };
 		float cameraRotation[3] = { 0.f, 0.f, 0.f };
 
 		// lightning parameters
-		float light_source_pos[3] = { 0.f, 0.f, 0.f };
+		float light_source_pos[3] = { 0.f, 0.f, 5.f };
 		float light_source_color[3] = {1.f, 1.f, 1.f};
 
 		float ambient_factor = 0.1f;
@@ -45,7 +45,7 @@ namespace Engine {
 		float camera_far_plane = 100.f;
 
 		bool perspectiveCamera = true;
-		Camera camera{ glm::vec3(-5.f, 0.f, 0.f) };
+		Camera camera{ glm::vec3(-1.f, 0.f, 2.f) }; // starting position of camera
 	private:
 		void draw();
 		std::unique_ptr<class Window> mpWindow;

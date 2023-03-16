@@ -25,6 +25,20 @@ namespace Engine {
 
 	const float textScaleS = 10;
 	// cube
+	const float plane_width = 100;
+	const float plane_lenght = 100;
+	
+	GLfloat plane_norm_uv[] = {
+		-plane_lenght / 2.0f, -plane_width / 2.0f, 0,    0,  0.f,  1.f,     0.f, 0.f,              // 0
+		-plane_lenght / 2.0f,  plane_width / 2.0f, 0,    0,  0.f,  1.f,     1.f, 0.f,              // 1
+		 plane_lenght / 2.0f, -plane_width / 2.0f, 0,    0,  0.f,  1.f,     0.f, 1.f,              // 2
+		 plane_lenght / 2.0f,  plane_width / 2.0f, 0,    0,  0.f,  1.f,     1.f, 1.f,              // 3
+	};
+
+	GLuint indices_plane[] = {
+		0, 1, 2, 2, 3, 1
+	};
+
 	GLfloat pos_norm_uv[] = {
 		//    position             normal            UV                  index
 
@@ -158,12 +172,11 @@ namespace Engine {
 			out vec2 tex_coord_smile;
 			out vec2 tex_coord_quads;
 			out vec3 frag_position;
-			out vec3 frag_normal
+			out vec3 frag_normal;
 			
 			void main() {
 				tex_coord_smile = texture_coord;
 				tex_coord_quads = texture_coord + vec2(current_frame / 1000.f, current_frame / 1000.f);
-				gl_Position = view_projection_matrix * model_matrix * vec4(vertex_position, 1.0);
 				frag_normal = mat3(transpose(inverse(model_matrix))) * vertex_normal;
 				vec4 vertex_position_world = model_matrix * vec4(vertex_position, 1.0);
 				frag_position = vertex_position_world.xyz;
@@ -241,12 +254,19 @@ namespace Engine {
 	std::unique_ptr<ShaderProgram> pSP_light_source;
 	
 	// cube
-	std::unique_ptr<ShaderProgram> pShaderProgram;
+	std::unique_ptr<ShaderProgram> pSP_cube;
 	std::unique_ptr<VertexBuffer> pPositionsColorsVbo;
 	std::unique_ptr<IndexBuffer> pIndexBuffer;
 	std::unique_ptr<Texture2D> p_texture_smile;
 	std::unique_ptr<Texture2D> p_texture_quads;
 	std::unique_ptr<VertexArray> p_cube_vao;
+
+	// plane
+	std::unique_ptr<VertexBuffer> p_plane_vbo;
+	std::unique_ptr<IndexBuffer> p_plane_ib;
+	std::unique_ptr<VertexArray> p_plane_vao;
+
+
 	float scale[3] = { 1.f, 1.f, 1.f };
 	float rotate = 0.f;
 	float translate[3] = { 0.f, 0.f, 0.f };
@@ -356,8 +376,16 @@ namespace Engine {
 
 		delete[] data;
 		//---------------------------------------//
-		pShaderProgram = std::make_unique<ShaderProgram>(vertexShader, fragmentShader);
-		if (!pShaderProgram->isCompiled())
+		// CUBE shader program
+		pSP_cube = std::make_unique<ShaderProgram>(vertexShader, fragmentShader);
+		if (!pSP_cube->isCompiled())
+		{
+			return false;
+		}
+
+		// Light source shader program
+		pSP_light_source = std::make_unique<ShaderProgram>(vertex_shader_light_source, fragment_shader_light_source);
+		if (!pSP_light_source->isCompiled())
 		{
 			return false;
 		}
@@ -365,15 +393,25 @@ namespace Engine {
 		BufferLayout bufferLayoutVec3Vec3Vec2
 		{
 			ShaderDataType::Float3,
+			ShaderDataType::Float3,
 			ShaderDataType::Float2
 		};
 
+		// cube buffers initialization
 		p_cube_vao = std::make_unique<VertexArray>();
 		pPositionsColorsVbo = std::make_unique<VertexBuffer>(pos_norm_uv, sizeof(pos_norm_uv), bufferLayoutVec3Vec3Vec2);
 		pIndexBuffer = std::make_unique<IndexBuffer>(indices, sizeof(indices) / sizeof(GLuint));
 
 		p_cube_vao->addVertexBuffer(*pPositionsColorsVbo);
 		p_cube_vao->setIndexBuffer(*pIndexBuffer);
+
+		// plane buffers initialization
+		/*p_plane_vao = std::make_unique<VertexArray>();
+		p_plane_vbo = std::make_unique<VertexBuffer>(plane_norm_uv, sizeof(plane_norm_uv), bufferLayoutVec3Vec3Vec2);
+		p_plane_ib = std::make_unique<IndexBuffer>(indices_plane, sizeof(indices_plane) / sizeof(GLuint));
+		
+		p_plane_vao->addVertexBuffer(*p_plane_vbo);
+		p_plane_vao->setIndexBuffer(*p_plane_ib);*/
 		//---------------------------------------//
 		
 		
@@ -390,14 +428,23 @@ namespace Engine {
 	glm::vec2 Application::getCurrentCursorPosition() const {
 		return mpWindow->getCurrentCursorPosition();
 	}
+	
 	void Application::draw() {
 		static int current_frame = 0;
 		RendererOpenGL::setClearColor(mBackgroundColor[0], mBackgroundColor[1], mBackgroundColor[2], mBackgroundColor[3]);
 		RendererOpenGL::clear();
 
-		pShaderProgram->bind();
-
-		glm::mat4 scaleMatrix(scale[0], 0, 0, 0,
+		// activating cube shader
+		pSP_cube->bind();
+		pSP_cube->setVec3("camera_position", camera.getPosition());
+		pSP_cube->setVec3("light_position", glm::vec3(light_source_pos[0], light_source_pos[1], light_source_pos[2]));
+		pSP_cube->setVec3("light_color", glm::vec3(light_source_color[0], light_source_color[1], light_source_color[2]));
+		pSP_cube->setFloat("ambient_factor", ambient_factor);
+		pSP_cube->setFloat("diffuse_factor", diffuse_factor);
+		pSP_cube->setFloat("specular_factor", specular_factor);
+		pSP_cube->setFloat("shininess", shininess);
+		
+		/*glm::mat4 scaleMatrix(scale[0], 0, 0, 0,
 			0, scale[1], 0, 0,
 			0, 0, scale[2], 0,
 			0, 0, 0, 1);
@@ -407,26 +454,41 @@ namespace Engine {
 			-sin(rotateInRadians), cos(rotateInRadians), 0, 0,
 			0, 0, 1, 0,
 			0, 0, 0, 1);
-
+		*/
 		glm::mat4 translateMatrix(1, 0, 0, 0,
 			0, 1, 0, 0,
 			0, 0, 1, 0,
 			translate[0], translate[1], translate[2], 1);
 
-		glm::mat4 modelMatrix = translateMatrix * rotateMatrix * scaleMatrix;
-		pShaderProgram->setMatrix4("model_matrix", modelMatrix);
-		pShaderProgram->setInt("current_frame", current_frame++);
+		glm::mat4 modelMatrix = translateMatrix;
+		pSP_cube->setMatrix4("model_matrix", modelMatrix);
 
-		pShaderProgram->setMatrix4("view_projection_matrix", camera.getProjectionMatrix() * camera.getViewMatrix());
-		RendererOpenGL::draw(*p_cube_vao);
+		pSP_cube->setMatrix4("view_projection_matrix", camera.getProjectionMatrix() * camera.getViewMatrix());
+		//RendererOpenGL::draw(*p_cube_vao);
+		
+		// rendering plane
+		//RendererOpenGL::draw(*p_plane_vao);
 
+		// rendering cubes
 		for (const glm::vec3& current_position : positions)
 		{
 			glm::mat4 translate_matrix(1, 0, 0, 0,
 				0, 1, 0, 0,
 				0, 0, 1, 0,
 				current_position[0], current_position[1], current_position[2], 1);
-			pShaderProgram->setMatrix4("model_matrix", translate_matrix);
+			pSP_cube->setMatrix4("model_matrix", translate_matrix);
+			RendererOpenGL::draw(*p_cube_vao);
+		}
+		// rendering light source cube
+		{
+			pSP_light_source->bind();
+			pSP_light_source->setMatrix4("view_projection_matrix", camera.getProjectionMatrix() * camera.getViewMatrix());
+			glm::mat4 translate_matrix(1, 0, 0, 0,
+				0, 1, 0, 0,
+				0, 0, 1, 0,
+				light_source_pos[0], light_source_pos[1], light_source_pos[2], 1);
+			pSP_light_source->setMatrix4("model_matrix", translate_matrix);
+			pSP_light_source->setVec3("light_color", glm::vec3(light_source_color[0], light_source_color[1], light_source_color[2]));
 			RendererOpenGL::draw(*p_cube_vao);
 		}
 
