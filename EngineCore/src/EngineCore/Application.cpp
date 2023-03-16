@@ -184,6 +184,8 @@ namespace Engine {
 		pIndexBuffer1 = std::make_unique<IndexBuffer>(Shar.getIndicies().data(), Shar.getIndicies().size());
 		pVao1->addVertexBuffer(*pPositionsColorsVbo1);
 		pVao1->setIndexBuffer(*pIndexBuffer1);
+
+
 		//---------------------------------------//
 
 		glEnable(GL_DEPTH_TEST);

@@ -6,9 +6,10 @@
 
 namespace Engine {
     Sphere::Sphere(float radius,unsigned int slices, unsigned int stacks)
-        : interleavedStride(32),
+        : interleavedStride(44),
           m_radius(radius) {
         init(slices, stacks);
+        buildInterleavedVertices();
     }
 
 
@@ -99,17 +100,21 @@ namespace Engine {
     {
         std::vector<float>().swap(interleavedVertices);
 
-        std::size_t i, j;
+        std::size_t i, j, k;
         std::size_t count = m_vertices.size();
-        for (i = 0, j = 0; i < count; i += 3, j += 2)
+        for (i = 0, j = 0, k = 0; i < count; i += 6, j += 2)
         {
             interleavedVertices.push_back(m_vertices[i]);
             interleavedVertices.push_back(m_vertices[i + 1]);
             interleavedVertices.push_back(m_vertices[i + 2]);
 
-            interleavedVertices.push_back(m_normals[i]);
-            interleavedVertices.push_back(m_normals[i + 1]);
-            interleavedVertices.push_back(m_normals[i + 2]);
+            interleavedVertices.push_back(m_vertices[i + 3]);
+            interleavedVertices.push_back(m_vertices[i + 4]);
+            interleavedVertices.push_back(m_vertices[i + 5]);
+
+            interleavedVertices.push_back(m_normals[k]);
+            interleavedVertices.push_back(m_normals[k + 1]);
+            interleavedVertices.push_back(m_normals[k + 2]);
 
             interleavedVertices.push_back(m_texCoords[j]);
             interleavedVertices.push_back(m_texCoords[j + 1]);

@@ -9,6 +9,9 @@ namespace Engine {
         std::vector<float> getVerticies() { return m_vertices; }
         std::vector<uint32_t> getIndicies() { return m_indicies; }
     private:
+        unsigned int getVertexCount() const { return (unsigned int)m_vertices.size() / 6; }
+        unsigned int getInterleavedVertexCount() const { return getVertexCount(); }
+        unsigned int getInterleavedVertexSize() const { return (unsigned int)interleavedVertices.size() * sizeof(float); }
         void init(unsigned slices, unsigned stacks);
         void buildInterleavedVertices();
 
