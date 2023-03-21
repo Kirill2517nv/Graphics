@@ -22,6 +22,7 @@ set(ENGINE_PRIVATE_INCLUDES
 	includes/EngineCore/Rendering/OpenGL/Texture2D.hpp
 	
 	includes/EngineCore/Rendering/OpenGL/Primitives/PrimitiveObject.hpp
+	includes/EngineCore/Rendering/OpenGL/Primitives/Plane.hpp
 )
 
 set(ENGINE_PRIVATE_SOURCES
@@ -38,6 +39,7 @@ set(ENGINE_PRIVATE_SOURCES
 	src/EngineCore/Rendering/OpenGL/Texture2D.cpp
 	
 	src/EngineCore/Rendering/OpenGL/Primitives/PrimitiveObject.cpp
+	src/EngineCore/Rendering/OpenGL/Primitives/Plane.cpp
 )
 
 set(ENGINE_ALL_SOURCES

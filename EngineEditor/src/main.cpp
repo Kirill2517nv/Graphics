@@ -46,11 +46,11 @@ class EngineEditor : public Engine::Application {
 		}
 		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_Q))
 		{
-			rotationDelta.x -= 0.5f;			
+			rotationDelta.x -= 0.1f;			
 		}
 		if (Engine::Input::isKeyPressed(Engine::KeyCode::KEY_E))
 		{
-			rotationDelta.x += 0.5f;			
+			rotationDelta.x += 0.1f;			
 		}
 		
 		// rotate camera with a mouse using RMB
