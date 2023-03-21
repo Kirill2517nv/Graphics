@@ -1,6 +1,7 @@
 #pragma once
 #include "VertexBuffer.hpp"
 #include "IndexBuffer.h"
+#include <memory>
 
 namespace Engine {
 
@@ -15,7 +16,7 @@ namespace Engine {
         VertexArray(VertexArray&& vertex_buffer) noexcept;
 
         void addVertexBuffer(const VertexBuffer& vertexBuffer);
-        void setIndexBuffer(const IndexBuffer& indexBuffer);
+        void setIndexBuffer(const std::shared_ptr<IndexBuffer> p_index_buffer);
         void bind() const;
         static void unbind();
         size_t getIndicesCount() const { return mIndicesCount; };
@@ -23,6 +24,7 @@ namespace Engine {
         unsigned int mId = 0;
         unsigned int mElementsCount = 0;
         size_t mIndicesCount = 0;
+        std::shared_ptr<IndexBuffer> mp_index_buffer = nullptr;
     };
 
 }

@@ -31,6 +31,9 @@ namespace Engine {
 
     void VertexArray::bind() const {
         glBindVertexArray(mId);
+        if (mp_index_buffer != nullptr) {
+            mp_index_buffer->bind();
+        }
     }
 
     void VertexArray::unbind() {
@@ -58,10 +61,10 @@ namespace Engine {
         //TODO - use buffer layout
 
     }
-    void VertexArray::setIndexBuffer(const IndexBuffer& indexBuffer) {
+    void VertexArray::setIndexBuffer(const std::shared_ptr<IndexBuffer> p_index_buffer) {
         bind();
-        indexBuffer.bind();
-
-        mIndicesCount = indexBuffer.getCount();
+        p_index_buffer->bind();
+        mIndicesCount = p_index_buffer->getCount();
+        mp_index_buffer = p_index_buffer;
     }
 }

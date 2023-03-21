@@ -169,6 +169,8 @@ class EngineEditor : public Engine::Application {
 		}
 		if (ImGui::ColorEdit3("light color", light_source_color)) {
 		}
+		if (ImGui::SliderFloat("brightness", &ls_brightness, 1.f, 50.f)) {
+		}
 		if (ImGui::SliderFloat("ambient_factor", &ambient_factor, 0.f, 3.f)) {
 		}
 		if (ImGui::SliderFloat("diffuse_factor", &diffuse_factor, 0.f, 3.f)) {
@@ -185,7 +187,7 @@ class EngineEditor : public Engine::Application {
 
 int main()
 {
-	auto pEngineEditor = std::make_unique<EngineEditor>();
+	auto pEngineEditor = std::make_shared<EngineEditor>();
 
 	int returnCode = pEngineEditor->start(1600, 900, "Engine Editor");
 

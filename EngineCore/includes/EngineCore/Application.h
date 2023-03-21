@@ -34,6 +34,8 @@ namespace Engine {
 		// lightning parameters
 		float light_source_pos[3] = { 0.f, 0.f, 5.f };
 		float light_source_color[3] = {1.f, 1.f, 1.f};
+		float ls_brightness = 10;
+
 
 		float ambient_factor = 0.1f;
 		float diffuse_factor = 0.2f;;
@@ -48,7 +50,7 @@ namespace Engine {
 		Camera camera{ glm::vec3(-1.f, 0.f, 2.f) }; // starting position of camera
 	private:
 		void draw();
-		std::unique_ptr<class Window> mpWindow;
+		std::shared_ptr<class Window> mpWindow;
 		EventDispatcher mEventDispatcher;
 		bool mbCloseWindow = false;
 

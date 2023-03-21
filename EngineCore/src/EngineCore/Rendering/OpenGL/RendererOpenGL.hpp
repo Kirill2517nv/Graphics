@@ -1,5 +1,5 @@
 #pragma once
-
+#include "IndexBuffer.h"
 struct GLFWwindow;
 
 namespace Engine {

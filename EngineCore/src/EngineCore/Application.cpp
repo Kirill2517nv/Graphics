@@ -43,16 +43,16 @@ namespace Engine {
 		//    position             normal            UV                  index
 
 		// FRONT
-		-1.0f, -1.f, -1.f,    -1.f,  0.f,  0.f,     0.f, 0.f,              // 0
-		-1.0f,  1.f, -1.f,    -1.f,  0.f,  0.f,     1.f, 0.f,              // 1
-		-1.0f,  1.f,  1.f,    -1.f,  0.f,  0.f,     1.f, 1.f,              // 2
-		-1.0f, -1.f,  1.f,    -1.f,  0.f,  0.f,     0.f, 1.f,              // 3
+		-1.0f, -1.f, -1.f,     -1.f,  0.f,  0.f,     0.f, 0.f,              // 0
+		-1.0f,  1.f, -1.f,     -1.f,  0.f,  0.f,     1.f, 0.f,              // 1
+		-1.0f,  1.f,  1.f,     -1.f,  0.f,  0.f,     1.f, 1.f,              // 2
+		-1.0f, -1.f,  1.f,     -1.f,  0.f,  0.f,     0.f, 1.f,              // 3
 
 		// BACK                                  
-		 1.0f, -1.f, -1.f,     1.f,  0.f,  0.f,     1.f, 0.f,              // 4
-		 1.0f,  1.f, -1.f,     1.f,  0.f,  0.f,     0.f, 0.f,              // 5
-		 1.0f,  1.f,  1.f,     1.f,  0.f,  0.f,     0.f, 1.f,              // 6
-		 1.0f, -1.f,  1.f,     1.f,  0.f,  0.f,     1.f, 1.f,              // 7
+		 1.0f, -1.f, -1.f,		1.f,  0.f,  0.f,     1.f, 0.f,              // 4
+		 1.0f,  1.f, -1.f,		1.f,  0.f,  0.f,     0.f, 0.f,              // 5
+		 1.0f,  1.f,  1.f,		1.f,  0.f,  0.f,     0.f, 1.f,              // 6
+		 1.0f, -1.f,  1.f,		1.f,  0.f,  0.f,     1.f, 1.f,              // 7
 
 		 // RIGHT
 		 -1.0f,  1.f, -1.f,     0.f,  1.f,  0.f,     0.f, 0.f,              // 8
@@ -210,6 +210,7 @@ namespace Engine {
 				
 				// diffuse
 				vec3 normal = normalize(frag_normal);
+				float light_magnitude = length(light_position - frag_position);
 				vec3 light_dir = normalize(light_position - frag_position);
 				vec3 diffuse = diffuse_factor * light_color * max(dot(normal, light_dir), 0.0);
 				
@@ -220,7 +221,7 @@ namespace Engine {
 				vec3 specular = specular_factor * specular_value * light_color;
 				
 				//frag_color = texture(InTexture_Smile, tex_coord_smile) * texture(InTexture_Quads, tex_coord_quads);
-				frag_color = texture(InTexture_Smile, tex_coord_smile) * vec4(ambient + diffuse + specular, 1.f);
+				frag_color = texture(InTexture_Smile, tex_coord_smile) * vec4((ambient + diffuse + specular) / light_magnitude, 1.f);
 			}
         )";
 
@@ -251,20 +252,20 @@ namespace Engine {
         )";
 
 	// light source cube
-	std::unique_ptr<ShaderProgram> pSP_light_source;
+	std::shared_ptr<ShaderProgram> pSP_light_source;
 	
 	// cube
-	std::unique_ptr<ShaderProgram> pSP_cube;
-	std::unique_ptr<VertexBuffer> pPositionsColorsVbo;
-	std::unique_ptr<IndexBuffer> pIndexBuffer;
-	std::unique_ptr<Texture2D> p_texture_smile;
-	std::unique_ptr<Texture2D> p_texture_quads;
-	std::unique_ptr<VertexArray> p_cube_vao;
+	std::shared_ptr<ShaderProgram> pSP_cube;
+	std::shared_ptr<VertexBuffer> pPositionsColorsVbo;
+	std::shared_ptr<IndexBuffer> pIndexBuffer;
+	std::shared_ptr<Texture2D> p_texture_smile;
+	std::shared_ptr<Texture2D> p_texture_quads;
+	std::shared_ptr<VertexArray> p_cube_vao;
 
 	// plane
-	std::unique_ptr<VertexBuffer> p_plane_vbo;
-	std::unique_ptr<IndexBuffer> p_plane_ib;
-	std::unique_ptr<VertexArray> p_plane_vao;
+	std::shared_ptr<VertexBuffer> p_plane_vbo;
+	std::shared_ptr<IndexBuffer> p_plane_ib;
+	std::shared_ptr<VertexArray> p_plane_vao;
 
 
 	float scale[3] = { 1.f, 1.f, 1.f };
@@ -290,7 +291,7 @@ namespace Engine {
 
 	int Application::start(unsigned int window_width, unsigned int window_height, const char* title)
 	{
-		mpWindow = std::make_unique<Window>(title, window_width, window_height);
+		mpWindow = std::make_shared<Window>(title, window_width, window_height);
 		camera.setViewportSize(static_cast<float>(window_width), static_cast<float>(window_height));
 
 		mEventDispatcher.addEventListener<EventMouseMoved>(
@@ -367,24 +368,24 @@ namespace Engine {
 		auto* data = new unsigned char[width * height * channels];
 		generate_smile_texture(data, width, height);
 		
-		p_texture_smile = std::make_unique<Texture2D>(data, width, height);
+		p_texture_smile = std::make_shared<Texture2D>(data, width, height);
 		p_texture_smile->bind(0);
 		
 		generate_quads_texture(data, width, height);
-		p_texture_quads = std::make_unique<Texture2D>(data, width, height);
+		p_texture_quads = std::make_shared<Texture2D>(data, width, height);
 		p_texture_quads->bind(1);
 
 		delete[] data;
 		//---------------------------------------//
 		// CUBE shader program
-		pSP_cube = std::make_unique<ShaderProgram>(vertexShader, fragmentShader);
+		pSP_cube = std::make_shared<ShaderProgram>(vertexShader, fragmentShader);
 		if (!pSP_cube->isCompiled())
 		{
 			return false;
 		}
 
 		// Light source shader program
-		pSP_light_source = std::make_unique<ShaderProgram>(vertex_shader_light_source, fragment_shader_light_source);
+		pSP_light_source = std::make_shared<ShaderProgram>(vertex_shader_light_source, fragment_shader_light_source);
 		if (!pSP_light_source->isCompiled())
 		{
 			return false;
@@ -397,22 +398,23 @@ namespace Engine {
 			ShaderDataType::Float2
 		};
 
-		// cube buffers initialization
-		p_cube_vao = std::make_unique<VertexArray>();
-		pPositionsColorsVbo = std::make_unique<VertexBuffer>(pos_norm_uv, sizeof(pos_norm_uv), bufferLayoutVec3Vec3Vec2);
-		pIndexBuffer = std::make_unique<IndexBuffer>(indices, sizeof(indices) / sizeof(GLuint));
-
-		p_cube_vao->addVertexBuffer(*pPositionsColorsVbo);
-		p_cube_vao->setIndexBuffer(*pIndexBuffer);
-
 		// plane buffers initialization
-		/*p_plane_vao = std::make_unique<VertexArray>();
-		p_plane_vbo = std::make_unique<VertexBuffer>(plane_norm_uv, sizeof(plane_norm_uv), bufferLayoutVec3Vec3Vec2);
-		p_plane_ib = std::make_unique<IndexBuffer>(indices_plane, sizeof(indices_plane) / sizeof(GLuint));
+		p_plane_vao = std::make_shared<VertexArray>();
+		p_plane_vbo = std::make_shared<VertexBuffer>(plane_norm_uv, sizeof(plane_norm_uv), bufferLayoutVec3Vec3Vec2);
+		p_plane_ib = std::make_shared<IndexBuffer>(indices_plane, sizeof(indices_plane) / sizeof(GLuint));
 		
 		p_plane_vao->addVertexBuffer(*p_plane_vbo);
-		p_plane_vao->setIndexBuffer(*p_plane_ib);*/
+		p_plane_vao->setIndexBuffer(p_plane_ib);
 		//---------------------------------------//
+
+		// cube buffers initialization
+		p_cube_vao = std::make_shared<VertexArray>();
+		pPositionsColorsVbo = std::make_shared<VertexBuffer>(pos_norm_uv, sizeof(pos_norm_uv), bufferLayoutVec3Vec3Vec2);
+		pIndexBuffer = std::make_shared<IndexBuffer>(indices, sizeof(indices) / sizeof(GLuint));
+
+		p_cube_vao->addVertexBuffer(*pPositionsColorsVbo);
+		p_cube_vao->setIndexBuffer(pIndexBuffer);
+		
 		
 		
 		RendererOpenGL::enableDepthBuffer();
@@ -433,12 +435,11 @@ namespace Engine {
 		static int current_frame = 0;
 		RendererOpenGL::setClearColor(mBackgroundColor[0], mBackgroundColor[1], mBackgroundColor[2], mBackgroundColor[3]);
 		RendererOpenGL::clear();
-
 		// activating cube shader
 		pSP_cube->bind();
 		pSP_cube->setVec3("camera_position", camera.getPosition());
 		pSP_cube->setVec3("light_position", glm::vec3(light_source_pos[0], light_source_pos[1], light_source_pos[2]));
-		pSP_cube->setVec3("light_color", glm::vec3(light_source_color[0], light_source_color[1], light_source_color[2]));
+		pSP_cube->setVec3("light_color", glm::vec3(ls_brightness * light_source_color[0], ls_brightness * light_source_color[1], ls_brightness * light_source_color[2]));
 		pSP_cube->setFloat("ambient_factor", ambient_factor);
 		pSP_cube->setFloat("diffuse_factor", diffuse_factor);
 		pSP_cube->setFloat("specular_factor", specular_factor);
@@ -461,15 +462,12 @@ namespace Engine {
 			translate[0], translate[1], translate[2], 1);
 
 		glm::mat4 modelMatrix = translateMatrix;
+		
+
+		// rendering cubes
 		pSP_cube->setMatrix4("model_matrix", modelMatrix);
 
 		pSP_cube->setMatrix4("view_projection_matrix", camera.getProjectionMatrix() * camera.getViewMatrix());
-		//RendererOpenGL::draw(*p_cube_vao);
-		
-		// rendering plane
-		//RendererOpenGL::draw(*p_plane_vao);
-
-		// rendering cubes
 		for (const glm::vec3& current_position : positions)
 		{
 			glm::mat4 translate_matrix(1, 0, 0, 0,
@@ -479,6 +477,8 @@ namespace Engine {
 			pSP_cube->setMatrix4("model_matrix", translate_matrix);
 			RendererOpenGL::draw(*p_cube_vao);
 		}
+		// rendering plane
+		RendererOpenGL::draw(*p_plane_vao);
 		// rendering light source cube
 		{
 			pSP_light_source->bind();
