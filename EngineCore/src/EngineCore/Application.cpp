@@ -29,10 +29,10 @@ namespace Engine {
 	const float plane_lenght = 100;
 	
 	GLfloat plane_norm_uv[] = {
-		-plane_lenght / 2.0f, -plane_width / 2.0f, 0,    0,  0.f,  1.f,     0.f, 0.f,              // 0
-		-plane_lenght / 2.0f,  plane_width / 2.0f, 0,    0,  0.f,  1.f,     1.f, 0.f,              // 1
-		 plane_lenght / 2.0f, -plane_width / 2.0f, 0,    0,  0.f,  1.f,     0.f, 1.f,              // 2
-		 plane_lenght / 2.0f,  plane_width / 2.0f, 0,    0,  0.f,  1.f,     1.f, 1.f,              // 3
+		-plane_lenght / 2.0f, -plane_width / 2.0f, 0,		0,  0.f,  1.f,			0.f,			0.f,						// 0
+		-plane_lenght / 2.0f,  plane_width / 2.0f, 0,		0,  0.f,  1.f,			plane_width,	0.f,						// 1
+		 plane_lenght / 2.0f, -plane_width / 2.0f, 0,		0,  0.f,  1.f,			0.f,			plane_lenght,				// 2
+		 plane_lenght / 2.0f,  plane_width / 2.0f, 0,		0,  0.f,  1.f,			plane_width,	plane_lenght,				// 3
 	};
 
 	GLuint indices_plane[] = {
@@ -121,20 +121,21 @@ namespace Engine {
 		{
 			for (unsigned int y = 0; y < height; ++y)
 			{
-				data[3 * (x + width * y) + 0] = 200;
-				data[3 * (x + width * y) + 1] = 191;
-				data[3 * (x + width * y) + 2] = 231;
+				data[3 * (x + width * y) + 0] = 255;
+				data[3 * (x + width * y) + 1] = 255;
+				data[3 * (x + width * y) + 2] = 255;
 			}
 		}
-		// face
-		generate_circle(data, width, height, width * 0.5, height * 0.5, width * 0.4, 255, 255, 0);
-		// smile
-		generate_circle(data, width, height, width * 0.5, height * 0.4, width * 0.2, 0, 0, 0);
-		generate_circle(data, width, height, width * 0.5, height * 0.45, width * 0.2, 255, 255, 0);
-		// eyes
-		generate_circle(data, width, height, width * 0.35, height * 0.6, width * 0.07, 255, 0, 255);
-		generate_circle(data, width, height, width * 0.65, height * 0.6, width * 0.07, 0, 0, 255);
+		//// face
+		//generate_circle(data, width, height, width * 0.5, height * 0.5, width * 0.4, 255, 255, 0);
+		//// smile
+		//generate_circle(data, width, height, width * 0.5, height * 0.4, width * 0.2, 0, 0, 0);
+		//generate_circle(data, width, height, width * 0.5, height * 0.45, width * 0.2, 255, 255, 0);
+		//// eyes
+		//generate_circle(data, width, height, width * 0.35, height * 0.6, width * 0.07, 255, 0, 255);
+		//generate_circle(data, width, height, width * 0.65, height * 0.6, width * 0.07, 0, 0, 255);
 	}
+	
 	void generate_quads_texture(unsigned char* data,
 		const unsigned int width,
 		const unsigned int height)
@@ -152,8 +153,8 @@ namespace Engine {
 				else
 				{
 					data[3 * (x + width * y) + 0] = 255;
-					data[3 * (x + width * y) + 1] = 255;
-					data[3 * (x + width * y) + 2] = 255;
+					data[3 * (x + width * y) + 1] = 0;
+					data[3 * (x + width * y) + 2] = 220;
 				}
 			}
 		}
@@ -176,7 +177,7 @@ namespace Engine {
 			
 			void main() {
 				tex_coord_smile = texture_coord;
-				tex_coord_quads = texture_coord + vec2(current_frame / 1000.f, current_frame / 1000.f);
+				tex_coord_quads = texture_coord; // + vec2(current_frame / 1000.f, current_frame / 1000.f);
 				frag_normal = mat3(transpose(inverse(model_matrix))) * vertex_normal;
 				vec4 vertex_position_world = model_matrix * vec4(vertex_position, 1.0);
 				frag_position = vertex_position_world.xyz;
@@ -221,7 +222,7 @@ namespace Engine {
 				vec3 specular = specular_factor * specular_value * light_color;
 				
 				//frag_color = texture(InTexture_Smile, tex_coord_smile) * texture(InTexture_Quads, tex_coord_quads);
-				frag_color = texture(InTexture_Smile, tex_coord_smile) * vec4((ambient + diffuse + specular) / light_magnitude, 1.f);
+				frag_color = texture(InTexture_Quads, tex_coord_quads) * vec4((ambient + diffuse + specular) / light_magnitude, 1.f);
 			}
         )";
 
@@ -236,7 +237,7 @@ namespace Engine {
 			uniform mat4 view_projection_matrix;
            
 			void main() {
-              gl_Position = view_projection_matrix * model_matrix * vec4(vertex_position * 0.1f, 1.0);
+              gl_Position = view_projection_matrix * model_matrix * vec4(vertex_position, 1.0);
            }
         )";
 
@@ -274,11 +275,11 @@ namespace Engine {
 	float mBackgroundColor[4] = { 0.33f, 0.33f, 0.33f, 0.f };
 
 	std::array<glm::vec3, 5> positions = {
-											glm::vec3(-2.f, -2.f, -4.f),
-											glm::vec3(-5.f,  0.f,  3.f),
-											glm::vec3(2.f,  1.f, -2.f),
-											glm::vec3(4.f, -3.f,  3.f),
-											glm::vec3(1.f, -7.f,  1.f)
+											glm::vec3(0, 0,	 2.f),
+											glm::vec3(0, 0,  4.f),
+											glm::vec3(0, 0,  6.f),
+											glm::vec3(0, 0,  8.f),
+											glm::vec3(0, 0,  10.f)
 										};
 
 	Application::Application() {
@@ -466,18 +467,25 @@ namespace Engine {
 
 		// rendering cubes
 		pSP_cube->setMatrix4("model_matrix", modelMatrix);
-
 		pSP_cube->setMatrix4("view_projection_matrix", camera.getProjectionMatrix() * camera.getViewMatrix());
+		unsigned int scale = 1;
 		for (const glm::vec3& current_position : positions)
 		{
-			glm::mat4 translate_matrix(1, 0, 0, 0,
-				0, 1, 0, 0,
-				0, 0, 1, 0,
-				current_position[0], current_position[1], current_position[2], 1);
+			glm::mat4 translate_matrix(scale, 0, 0, 0,
+				0, scale, 0, 0,
+				0, 0, scale , 0,
+				current_position[0] * scale, current_position[1] * scale, current_position[2] * scale, 1);
 			pSP_cube->setMatrix4("model_matrix", translate_matrix);
 			RendererOpenGL::draw(*p_cube_vao);
+			scale*=2;
 		}
-		// rendering plane
+		// rendering 
+		translateMatrix = glm::mat4(1, 0, 0, 0,
+			0, 1, 0, 0,
+			0, 0, 1, 0,
+			0, 0, 0, 1);
+
+		pSP_cube->setMatrix4("model_matrix", translateMatrix);
 		RendererOpenGL::draw(*p_plane_vao);
 		// rendering light source cube
 		{

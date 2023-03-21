@@ -32,12 +32,12 @@ namespace Engine {
 		float cameraRotation[3] = { 0.f, 0.f, 0.f };
 
 		// lightning parameters
-		float light_source_pos[3] = { 0.f, 0.f, 5.f };
+		float light_source_pos[3] = { 5.f, 5.f, 2.f };
 		float light_source_color[3] = {1.f, 1.f, 1.f};
 		float ls_brightness = 10;
 
 
-		float ambient_factor = 0.1f;
+		float ambient_factor = 0.2f;
 		float diffuse_factor = 0.2f;;
 		float specular_factor = 2;
 		float shininess = 2;
@@ -47,7 +47,7 @@ namespace Engine {
 		float camera_far_plane = 100.f;
 
 		bool perspectiveCamera = true;
-		Camera camera{ glm::vec3(-1.f, 0.f, 2.f) }; // starting position of camera
+		Camera camera{ glm::vec3(-10.f, 0.f, 2.f) }; // starting position of camera
 	private:
 		void draw();
 		std::shared_ptr<class Window> mpWindow;
