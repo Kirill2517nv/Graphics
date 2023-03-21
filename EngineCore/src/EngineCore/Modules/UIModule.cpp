@@ -1,4 +1,4 @@
-#include "UIModule.hpp"
+#include "EngineCore/Modules/UIModule.hpp"
 
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_opengl3.h>

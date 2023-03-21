@@ -1,4 +1,4 @@
-#include "Texture2D.hpp"
+#include "EngineCore/Rendering/OpenGL/Texture2D.hpp"
 
 #include <algorithm>
 #include <cmath>

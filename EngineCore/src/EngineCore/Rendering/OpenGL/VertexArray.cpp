@@ -1,4 +1,4 @@
-#include "VertexArray.hpp"
+#include "EngineCore/Rendering/OpenGL/VertexArray.hpp"
 
 #include "EngineCore/Log.h"
 

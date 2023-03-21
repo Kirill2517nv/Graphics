@@ -1,9 +1,9 @@
-#include "RendererOpenGL.hpp"
+#include "EngineCore/Rendering/OpenGL/RendererOpenGL.hpp"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "VertexArray.hpp"
+#include "EngineCore/Rendering/OpenGL/VertexArray.hpp"
 #include "EngineCore/Log.h"
 
 

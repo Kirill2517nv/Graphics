@@ -1,4 +1,4 @@
-#include "VertexBuffer.hpp"
+#include "EngineCore/Rendering/OpenGL/VertexBuffer.hpp"
 
 #include "EngineCore/Log.h"
 

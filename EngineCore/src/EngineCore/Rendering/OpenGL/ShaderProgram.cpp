@@ -1,4 +1,4 @@
-#include "ShaderProgram.hpp"
+#include "EngineCore/Rendering/OpenGL/ShaderProgram.hpp"
 
 #include "EngineCore/Log.h"
 

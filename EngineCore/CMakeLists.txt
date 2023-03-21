@@ -13,13 +13,15 @@ set(ENGINE_PUBLIC_INCLUDES
 
 set(ENGINE_PRIVATE_INCLUDES
 	includes/EngineCore/Window.h
-	src/EngineCore/Modules/UIModule.hpp
-	src/EngineCore/Rendering/OpenGL/ShaderProgram.hpp
-	src/EngineCore/Rendering/OpenGL/VertexBuffer.hpp
-	src/EngineCore/Rendering/OpenGL/VertexArray.hpp
-	src/EngineCore/Rendering/OpenGL/IndexBuffer.h
-	src/EngineCore/Rendering/OpenGL/RendererOpenGL.hpp
-	src/EngineCore/Rendering/OpenGL/Texture2D.hpp
+	includes/EngineCore/Modules/UIModule.hpp
+	includes/EngineCore/Rendering/OpenGL/ShaderProgram.hpp
+	includes/EngineCore/Rendering/OpenGL/VertexBuffer.hpp
+	includes/EngineCore/Rendering/OpenGL/VertexArray.hpp
+	includes/EngineCore/Rendering/OpenGL/IndexBuffer.h
+	includes/EngineCore/Rendering/OpenGL/RendererOpenGL.hpp
+	includes/EngineCore/Rendering/OpenGL/Texture2D.hpp
+	
+	includes/EngineCore/Rendering/OpenGL/Primitives/PrimitiveObject.hpp
 )
 
 set(ENGINE_PRIVATE_SOURCES
@@ -34,6 +36,8 @@ set(ENGINE_PRIVATE_SOURCES
 	src/EngineCore/Rendering/OpenGL/IndexBuffer.cpp
 	src/EngineCore/Rendering/OpenGL/RendererOpenGL.cpp
 	src/EngineCore/Rendering/OpenGL/Texture2D.cpp
+	
+	src/EngineCore/Rendering/OpenGL/Primitives/PrimitiveObject.cpp
 )
 
 set(ENGINE_ALL_SOURCES
