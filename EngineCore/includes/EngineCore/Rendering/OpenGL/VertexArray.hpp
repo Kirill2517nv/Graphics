@@ -15,8 +15,8 @@ namespace Engine {
         VertexArray& operator=(VertexArray&& vertex_buffer) noexcept;
         VertexArray(VertexArray&& vertex_buffer) noexcept;
 
-        void addVertexBuffer(const VertexBuffer& vertexBuffer);
-        void setIndexBuffer(const std::shared_ptr<IndexBuffer> p_index_buffer);
+        void addVertexBuffer(const std::shared_ptr<VertexBuffer>& p_vertex_buffer);
+        void setIndexBuffer(const std::shared_ptr<IndexBuffer>& p_index_buffer);
         void bind() const;
         static void unbind();
         size_t getIndicesCount() const { return mIndicesCount; };

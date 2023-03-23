@@ -28,18 +28,18 @@ namespace Engine {
 	const float plane_width = 100;
 	const float plane_lenght = 100;
 	
-	GLfloat plane_norm_uv[] = {
+	float plane_norm_uv[] = {
 		-plane_lenght / 2.0f, -plane_width / 2.0f, 0,		0,  0.f,  1.f,			0.f,			0.f,						// 0
 		-plane_lenght / 2.0f,  plane_width / 2.0f, 0,		0,  0.f,  1.f,			plane_width,	0.f,						// 1
 		 plane_lenght / 2.0f, -plane_width / 2.0f, 0,		0,  0.f,  1.f,			0.f,			plane_lenght,				// 2
 		 plane_lenght / 2.0f,  plane_width / 2.0f, 0,		0,  0.f,  1.f,			plane_width,	plane_lenght,				// 3
 	};
 
-	GLuint indices_plane[] = {
+	unsigned int indices_plane[] = {
 		0, 1, 2, 2, 3, 1
 	};
 
-	GLfloat pos_norm_uv[] = {
+	float pos_norm_uv[] = {
 		//    position             normal            UV                  index
 
 		// FRONT
@@ -79,7 +79,7 @@ namespace Engine {
 		   1.0f, -1.f, -1.f,    0.f,  0.f, -1.f,     0.f, 0.f,              // 23
 	};
 	// cube indices
-	GLuint indices[] = {
+	unsigned int indices[] = {
 		0,   1,  2,  2,  3,  0, // front
 		4,   5,  6,  6,  7,  4, // back
 		8,   9, 10, 10, 11,  8, // right
@@ -404,7 +404,7 @@ namespace Engine {
 		p_plane_vbo = std::make_shared<VertexBuffer>(plane_norm_uv, sizeof(plane_norm_uv), bufferLayoutVec3Vec3Vec2);
 		p_plane_ib = std::make_shared<IndexBuffer>(indices_plane, sizeof(indices_plane) / sizeof(GLuint));
 		
-		p_plane_vao->addVertexBuffer(*p_plane_vbo);
+		p_plane_vao->addVertexBuffer(p_plane_vbo);
 		p_plane_vao->setIndexBuffer(p_plane_ib);
 		//---------------------------------------//
 
@@ -413,7 +413,7 @@ namespace Engine {
 		pPositionsColorsVbo = std::make_shared<VertexBuffer>(pos_norm_uv, sizeof(pos_norm_uv), bufferLayoutVec3Vec3Vec2);
 		pIndexBuffer = std::make_shared<IndexBuffer>(indices, sizeof(indices) / sizeof(GLuint));
 
-		p_cube_vao->addVertexBuffer(*pPositionsColorsVbo);
+		p_cube_vao->addVertexBuffer(pPositionsColorsVbo);
 		p_cube_vao->setIndexBuffer(pIndexBuffer);
 		
 		
@@ -467,6 +467,11 @@ namespace Engine {
 
 		// rendering cubes
 		pSP_cube->setMatrix4("model_matrix", modelMatrix);
+		/*static size_t counter = 0;
+		if (counter % 1000 == 0)
+		{
+		}
+		counter++;*/
 		pSP_cube->setMatrix4("view_projection_matrix", camera.getProjectionMatrix() * camera.getViewMatrix());
 		unsigned int scale = 1;
 		for (const glm::vec3& current_position : positions)
@@ -476,7 +481,7 @@ namespace Engine {
 				0, 0, scale , 0,
 				current_position[0] * scale, current_position[1] * scale, current_position[2] * scale, 1);
 			pSP_cube->setMatrix4("model_matrix", translate_matrix);
-			RendererOpenGL::draw(*p_cube_vao);
+			RendererOpenGL::draw(p_cube_vao);
 			scale*=2;
 		}
 		// rendering 
@@ -486,7 +491,7 @@ namespace Engine {
 			0, 0, 0, 1);
 
 		pSP_cube->setMatrix4("model_matrix", translateMatrix);
-		RendererOpenGL::draw(*p_plane_vao);
+		RendererOpenGL::draw(p_plane_vao);
 		// rendering light source cube
 		{
 			pSP_light_source->bind();
@@ -497,7 +502,7 @@ namespace Engine {
 				light_source_pos[0], light_source_pos[1], light_source_pos[2], 1);
 			pSP_light_source->setMatrix4("model_matrix", translate_matrix);
 			pSP_light_source->setVec3("light_color", glm::vec3(light_source_color[0], light_source_color[1], light_source_color[2]));
-			RendererOpenGL::draw(*p_cube_vao);
+			RendererOpenGL::draw(p_cube_vao);
 		}
 
 		UIModule::onUiDrawBegin();

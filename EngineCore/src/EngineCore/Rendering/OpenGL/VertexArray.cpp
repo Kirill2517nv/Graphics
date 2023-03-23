@@ -40,11 +40,11 @@ namespace Engine {
         glBindVertexArray(0);
     }
 
-    void VertexArray::addVertexBuffer(const VertexBuffer& vertexBuffer) {
+    void VertexArray::addVertexBuffer(const std::shared_ptr<VertexBuffer>& p_vertex_buffer) {
         bind();
-        vertexBuffer.bind();
+        p_vertex_buffer->bind();
 
-        for (const BufferElement& currElement : vertexBuffer.getLayout().getElemets()) {
+        for (const BufferElement& currElement : p_vertex_buffer->getLayout().getElemets()) {
 
             glEnableVertexAttribArray(mElementsCount);
             glVertexAttribPointer(
@@ -52,7 +52,7 @@ namespace Engine {
                 static_cast<GLint>(currElement.componentCount),
                 currElement.componentType,
                 GL_FALSE,
-                static_cast<GLsizei>(vertexBuffer.getLayout().getStride()),
+                static_cast<GLsizei>(p_vertex_buffer->getLayout().getStride()),
                 reinterpret_cast<const void*>(currElement.offset)
             );
             ++mElementsCount;
@@ -61,7 +61,7 @@ namespace Engine {
         //TODO - use buffer layout
 
     }
-    void VertexArray::setIndexBuffer(const std::shared_ptr<IndexBuffer> p_index_buffer) {
+    void VertexArray::setIndexBuffer(const std::shared_ptr<IndexBuffer>& p_index_buffer) {
         bind();
         p_index_buffer->bind();
         mIndicesCount = p_index_buffer->getCount();
