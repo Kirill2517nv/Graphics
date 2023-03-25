@@ -3,6 +3,8 @@
 #include <memory>
 #include "EngineCore/Event.hpp"
 #include "EngineCore/Camera.hpp"
+#include "EngineCore/Rendering/OpenGL/Material.hpp"
+
 
 namespace Engine {
 	class Application {
@@ -36,9 +38,8 @@ namespace Engine {
 		float light_source_color[3] = {1.f, 1.f, 1.f};
 		float ls_brightness = 10;
 
-
 		float ambient_factor = 0.2f;
-		float diffuse_factor = 0.2f;;
+		float diffuse_factor = 0.2f;
 		float specular_factor = 2;
 		float shininess = 2;
 

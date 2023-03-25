@@ -2,9 +2,10 @@
 
 namespace Engine {
 	// BASIC SHADERS
+	namespace Shaders {
 
 	// VERTEX SHADER (vertex_pos - vertex_norm - texture_coords)
-	static const char* vertexShader =
+	static const char* VERTEX_SHADER_WITH_BASIC_LIGHTNING =
 		R"(#version 460
 			layout(location = 0) in vec3 vertex_position;
 			layout(location = 1) in vec3 vertex_normal;
@@ -29,7 +30,7 @@ namespace Engine {
 			}
         )";
 	// FRAGMENT SHADER
-	static const char* fragmentShader =
+	static const char* FRAGMENT_SHADER_WITH_BASIC_LIGHTNING =
 		R"(#version 460
 			in vec2 tex_coord_smile;
 			in vec2 tex_coord_quads;
@@ -97,5 +98,6 @@ namespace Engine {
 				frag_color = vec4(light_color, 1.f);
 			}
         )";
+	}
 
 }

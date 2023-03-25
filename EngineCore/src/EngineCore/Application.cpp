@@ -144,18 +144,22 @@ namespace Engine {
 	}
 	//---------------------------------------//
 
-	// light source cube
-	std::shared_ptr<ShaderProgram> pSP_light_source;
 	
+	std::shared_ptr<ShaderProgram> pSP_light_source; // light source shader
+	std::shared_ptr<ShaderProgram> pSP_basic; // basic shader with simple lightning
+	
+	// materials
+	std::shared_ptr<Material> basic_material;
+	std::shared_ptr<Material> plane_material;
+
 	// cube
-	std::shared_ptr<ShaderProgram> pSP_cube;
 	std::shared_ptr<VertexBuffer> pPositionsColorsVbo;
 	std::shared_ptr<IndexBuffer> pIndexBuffer;
 	std::shared_ptr<Texture2D> p_texture_smile;
 	std::shared_ptr<Texture2D> p_texture_quads;
 	std::shared_ptr<VertexArray> p_cube_vao;
 
-	// using new plane class
+	// Example Plane for
 	std::shared_ptr<Plane> example_plane;
 
 	float scale[3] = { 1.f, 1.f, 1.f };
@@ -163,6 +167,7 @@ namespace Engine {
 	float translate[3] = { 0.f, 0.f, 0.f };
 	float mBackgroundColor[4] = { 0.33f, 0.33f, 0.33f, 0.f };
 
+	// origin positions for example cubes
 	std::array<glm::vec3, 5> positions = {
 											glm::vec3(0, 0,	 2.f),
 											glm::vec3(0, 0,  4.f),
@@ -180,10 +185,13 @@ namespace Engine {
 	}
 
 	int Application::start(unsigned int window_width, unsigned int window_height, const char* title)
-	{		
+	{	
+		// making a window
 		mpWindow = std::make_shared<Window>(title, window_width, window_height);
+		// setting up a camera viewport
 		camera.setViewportSize(static_cast<float>(window_width), static_cast<float>(window_height));
-
+		
+		// Events ( add new event callback here and event itself in Event class)
 		mEventDispatcher.addEventListener<EventMouseMoved>(
 			[](EventMouseMoved& event) {
 				//LOG_INFO("[MouseMoved] Mouse moved to {0} x {1}", event.x, event.y);
@@ -229,7 +237,7 @@ namespace Engine {
 				Input::releaseKey(event.keycode);
 			}
 		);
-		// mouse event
+		// Mouse event
 		mEventDispatcher.addEventListener<EventMouseButtonPressed>(
 			[&](EventMouseButtonPressed& event) {
 				LOG_INFO("[MOUSE BUTTON PRESSED: {0} AT {1}x{2}]", static_cast<int>(event.mouseButton), event.xPos, event.yPos);
@@ -252,9 +260,13 @@ namespace Engine {
 			}
 		);
 
+		// various stuff initialization
+
 		const unsigned int width = 1000;
 		const unsigned int height = 1000;
 		const unsigned int channels = 3;
+		
+		// textures generation
 		auto* data = new unsigned char[width * height * channels];
 		generate_smile_texture(data, width, height);
 		
@@ -265,22 +277,29 @@ namespace Engine {
 		p_texture_quads = std::make_shared<Texture2D>(data, width, height);
 		p_texture_quads->bind(1);
 
-		delete[] data;
-		//---------------------------------------//
-		// CUBE shader program
-		pSP_cube = std::make_shared<ShaderProgram>(vertexShader, fragmentShader);
-		if (!pSP_cube->isCompiled())
+		delete[] data; // cleaning up texture data
+		
+		// Compiling shader programs
+		
+		// basic shader program with simple lighning
+		pSP_basic = std::make_shared<ShaderProgram>(Shaders::VERTEX_SHADER_WITH_BASIC_LIGHTNING, Shaders::FRAGMENT_SHADER_WITH_BASIC_LIGHTNING);
+		if (!pSP_basic->isCompiled())
 		{
 			return false;
 		}
 
 		// Light source shader program
-		pSP_light_source = std::make_shared<ShaderProgram>(vertex_shader_light_source, fragment_shader_light_source);
+		pSP_light_source = std::make_shared<ShaderProgram>(Shaders::vertex_shader_light_source, Shaders::fragment_shader_light_source);
 		if (!pSP_light_source->isCompiled())
 		{
 			return false;
 		}
 
+		// material init
+		basic_material = std::make_shared<Material>(ambient_factor, diffuse_factor, specular_factor, shininess);
+		plane_material = std::make_shared<Material>(0.1f*ambient_factor, 0.1f*diffuse_factor, 20 * specular_factor, 20* shininess);
+
+		// ---------  delete
 		BufferLayout bufferLayoutVec3Vec3Vec2
 		{
 			ShaderDataType::Float3,
@@ -297,9 +316,12 @@ namespace Engine {
 
 		p_cube_vao->addVertexBuffer(pPositionsColorsVbo);
 		p_cube_vao->setIndexBuffer(pIndexBuffer);
+		//---------------------------------------//
 		
-		// Plane example using classes
+		// Initializing plane
 		example_plane = std::make_shared<Plane>(glm::vec3(0, 0, 0), 100.f, 100.f);
+		example_plane->setMaterial(plane_material);
+		example_plane->setShaderProgram(pSP_basic);
 
 		RendererOpenGL::enableDepthBuffer();
 		
@@ -324,17 +346,15 @@ namespace Engine {
 		// view_projection matrix
 		glm::mat4 view_projection_matrix = camera.getProjectionMatrix() * camera.getViewMatrix();
 
-
-
-		// activating cube shader
-		pSP_cube->bind();
-		pSP_cube->setVec3("camera_position", camera.getPosition());
-		pSP_cube->setVec3("light_position", glm::vec3(light_source_pos[0], light_source_pos[1], light_source_pos[2]));
-		pSP_cube->setVec3("light_color", glm::vec3(ls_brightness * light_source_color[0], ls_brightness * light_source_color[1], ls_brightness * light_source_color[2]));
-		pSP_cube->setFloat("ambient_factor", ambient_factor);
-		pSP_cube->setFloat("diffuse_factor", diffuse_factor);
-		pSP_cube->setFloat("specular_factor", specular_factor);
-		pSP_cube->setFloat("shininess", shininess);
+		// activating basic shader
+		pSP_basic->bind();
+		pSP_basic->setVec3("camera_position", camera.getPosition());
+		pSP_basic->setVec3("light_position", glm::vec3(light_source_pos[0], light_source_pos[1], light_source_pos[2]));
+		pSP_basic->setVec3("light_color", glm::vec3(ls_brightness * light_source_color[0], ls_brightness * light_source_color[1], ls_brightness * light_source_color[2]));
+		pSP_basic->setFloat("ambient_factor", ambient_factor);
+		pSP_basic->setFloat("diffuse_factor", diffuse_factor);
+		pSP_basic->setFloat("specular_factor", specular_factor);
+		pSP_basic->setFloat("shininess", shininess);
 		
 		/*glm::mat4 scaleMatrix(scale[0], 0, 0, 0,
 			0, scale[1], 0, 0,
@@ -356,9 +376,9 @@ namespace Engine {
 		
 
 		// rendering cubes
-		pSP_cube->setMatrix4("model_matrix", modelMatrix);
+		pSP_basic->setMatrix4("model_matrix", modelMatrix);
 
-		pSP_cube->setMatrix4("view_projection_matrix", view_projection_matrix);
+		pSP_basic->setMatrix4("view_projection_matrix", view_projection_matrix);
 		
 		unsigned int scale = 1;
 		for (const glm::vec3& current_position : positions)
@@ -367,18 +387,14 @@ namespace Engine {
 				0, scale, 0, 0,
 				0, 0, scale , 0,
 				current_position[0] * scale, current_position[1] * scale, current_position[2] * scale, 1);
-			pSP_cube->setMatrix4("model_matrix", translate_matrix);
+			pSP_basic->setMatrix4("model_matrix", translate_matrix);
 			RendererOpenGL::draw(p_cube_vao);
 			scale*=2;
 		}
-		// rendering 
-		translateMatrix = glm::mat4(1, 0, 0, 0,
-			0, 1, 0, 0,
-			0, 0, 1, 0,
-			0, 0, 0, 1);
-
-		pSP_cube->setMatrix4("model_matrix", translateMatrix);
-		
+		// rendering plane
+		example_plane->setCameraPosition(camera.getCameraPosition());
+		example_plane->setLightSourcePosition(glm::vec3(light_source_pos[0], light_source_pos[1], light_source_pos[2]));
+		example_plane->setLightSourceColor(glm::vec3(ls_brightness * light_source_color[0], ls_brightness * light_source_color[1], ls_brightness * light_source_color[2]));
 		example_plane->draw();
 
 		// rendering light source cube
