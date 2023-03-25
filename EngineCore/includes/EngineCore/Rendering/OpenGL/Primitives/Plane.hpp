@@ -5,7 +5,9 @@ namespace Engine {
 
 	class Plane : public PrimitiveObject {
 	public:
-		Plane(glm::vec3 position, float width, float lenght);
+		Plane(const glm::vec3& position, const float& width, const float& lenght);
+		Plane(const Plane& other) = delete;
+		Plane(Plane&& other) = delete;
 
 		virtual void draw() override;
 	protected:

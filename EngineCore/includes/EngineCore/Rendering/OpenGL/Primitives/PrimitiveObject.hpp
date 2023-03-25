@@ -16,8 +16,8 @@ namespace Engine {
 	
 	public:
 		PrimitiveObject(glm::vec3 position);
-		PrimitiveObject(const PrimitiveObject& other) = delete;
-		PrimitiveObject(PrimitiveObject&& other) = delete;
+		//PrimitiveObject(const PrimitiveObject& other) = delete;
+		//PrimitiveObject(PrimitiveObject&& other) = delete;
 		
 		virtual void draw() = 0;
 		virtual ~PrimitiveObject();
@@ -26,10 +26,10 @@ namespace Engine {
 		virtual void configureObject() = 0;
 
 		glm::vec3 m_position;
-		std::shared_ptr<VertexArray> m_vao;
-		std::shared_ptr<VertexBuffer> m_vbo;
-		std::shared_ptr<IndexBuffer> m_ib;
-		std::shared_ptr<ShaderProgram> m_sp;
+		std::shared_ptr<VertexArray> m_vao = nullptr;
+		std::shared_ptr<VertexBuffer> m_vbo = nullptr;
+		std::shared_ptr<IndexBuffer> m_ib = nullptr;
+		std::shared_ptr<ShaderProgram> m_sp = nullptr;
 	private:
 	
 	};

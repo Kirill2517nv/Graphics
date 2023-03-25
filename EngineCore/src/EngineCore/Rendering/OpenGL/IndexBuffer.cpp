@@ -1,4 +1,4 @@
-#include "IndexBuffer.h"
+#include "EngineCore/Rendering/OpenGL/IndexBuffer.h"
 
 #include "EngineCore/Log.h"
 

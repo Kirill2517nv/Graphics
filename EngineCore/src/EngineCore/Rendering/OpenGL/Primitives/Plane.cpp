@@ -3,10 +3,11 @@
 
 namespace Engine {
 	
-	Plane::Plane(glm::vec3 position, float width, float lenght) :
+	Plane::Plane(const glm::vec3& position, const float& width, const float& lenght) :
 		PrimitiveObject(position),
 		m_width(width),
 		m_lenght(lenght) {
+		configureObject();
 		
 	}
 
@@ -44,4 +45,6 @@ namespace Engine {
 		m_vao->setIndexBuffer(m_ib);
 
 	}
+	
 }
+

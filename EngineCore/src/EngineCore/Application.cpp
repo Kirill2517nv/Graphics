@@ -7,13 +7,10 @@
 #include "EngineCore/Event.hpp"
 #include "EngineCore/Input.hpp"
 
-#include "EngineCore/Rendering/OpenGL/ShaderProgram.hpp"
-#include "EngineCore/Rendering/OpenGL/VertexBuffer.hpp"
-#include "EngineCore/Rendering/OpenGL/VertexArray.hpp"
-#include "EngineCore/Rendering/OpenGL/IndexBuffer.h"
-#include "EngineCore/Rendering/OpenGL/Texture2D.hpp"
-#include "EngineCore/Camera.hpp"
-#include "EngineCore/Rendering/OpenGL/RendererOpenGL.hpp"
+
+#include "EngineCore/Rendering/OpenGL/ShaderContainer.hpp"
+#include "EngineCore/Rendering/OpenGL/Primitives/Plane.hpp"
+
 #include "EngineCore/Modules/UIModule.hpp"
 
 #include <imgui/imgui.h>
@@ -24,20 +21,6 @@
 namespace Engine {
 
 	const float textScaleS = 10;
-	// cube
-	const float plane_width = 100;
-	const float plane_lenght = 100;
-	
-	float plane_norm_uv[] = {
-		-plane_lenght / 2.0f, -plane_width / 2.0f, 0,		0,  0.f,  1.f,			0.f,			0.f,						// 0
-		-plane_lenght / 2.0f,  plane_width / 2.0f, 0,		0,  0.f,  1.f,			plane_width,	0.f,						// 1
-		 plane_lenght / 2.0f, -plane_width / 2.0f, 0,		0,  0.f,  1.f,			0.f,			plane_lenght,				// 2
-		 plane_lenght / 2.0f,  plane_width / 2.0f, 0,		0,  0.f,  1.f,			plane_width,	plane_lenght,				// 3
-	};
-
-	unsigned int indices_plane[] = {
-		0, 1, 2, 2, 3, 1
-	};
 
 	float pos_norm_uv[] = {
 		//    position             normal            UV                  index
@@ -160,97 +143,6 @@ namespace Engine {
 		}
 	}
 	//---------------------------------------//
-	const char* vertexShader =
-		R"(#version 460
-			layout(location = 0) in vec3 vertex_position;
-			layout(location = 1) in vec3 vertex_normal;
-			layout(location = 2) in vec2 texture_coord;
-           
-			uniform mat4 model_matrix;
-			uniform mat4 view_projection_matrix;
-			uniform int current_frame; 
-           
-			out vec2 tex_coord_smile;
-			out vec2 tex_coord_quads;
-			out vec3 frag_position;
-			out vec3 frag_normal;
-			
-			void main() {
-				tex_coord_smile = texture_coord;
-				tex_coord_quads = texture_coord; // + vec2(current_frame / 1000.f, current_frame / 1000.f);
-				frag_normal = mat3(transpose(inverse(model_matrix))) * vertex_normal;
-				vec4 vertex_position_world = model_matrix * vec4(vertex_position, 1.0);
-				frag_position = vertex_position_world.xyz;
-				gl_Position = view_projection_matrix * vertex_position_world;
-			}
-        )";
-
-	const char* fragmentShader =
-		R"(#version 460
-			in vec2 tex_coord_smile;
-			in vec2 tex_coord_quads;
-			in vec3 frag_position;
-			in vec3 frag_normal;
-			
-			layout (binding = 0) uniform sampler2D InTexture_Smile;
-			layout (binding = 1) uniform sampler2D InTexture_Quads;
-			
-			uniform vec3 camera_position;
-			uniform vec3 light_position;
-			uniform vec3 light_color;
-			uniform float ambient_factor;
-			uniform float diffuse_factor;
-			uniform float specular_factor;
-			uniform float shininess;
-			
-			out vec4 frag_color;
-			
-			void main() {
-				// ambient
-				vec3 ambient = ambient_factor * light_color;
-				
-				// diffuse
-				vec3 normal = normalize(frag_normal);
-				float light_magnitude = length(light_position - frag_position);
-				vec3 light_dir = normalize(light_position - frag_position);
-				vec3 diffuse = diffuse_factor * light_color * max(dot(normal, light_dir), 0.0);
-				
-				// specular
-				vec3 view_dir = normalize(camera_position - frag_position);
-				vec3 reflect_dir = reflect(-light_dir, normal);
-				float specular_value = pow(max(dot(view_dir, reflect_dir), 0.0), shininess);
-				vec3 specular = specular_factor * specular_value * light_color;
-				
-				//frag_color = texture(InTexture_Smile, tex_coord_smile) * texture(InTexture_Quads, tex_coord_quads);
-				frag_color = texture(InTexture_Quads, tex_coord_quads) * vec4((ambient + diffuse + specular) / light_magnitude, 1.f);
-			}
-        )";
-
-	
-	// LIGHT SOURCE SHADERS
-	const char* vertex_shader_light_source =
-		R"(#version 460
-			layout(location = 0) in vec3 vertex_position;
-			layout(location = 1) in vec3 vertex_color;
-
-			uniform mat4 model_matrix;
-			uniform mat4 view_projection_matrix;
-           
-			void main() {
-              gl_Position = view_projection_matrix * model_matrix * vec4(vertex_position, 1.0);
-           }
-        )";
-
-	const char* fragment_shader_light_source =
-		R"(#version 460
-			out vec4 frag_color;
-			
-			uniform vec3 light_color;
-			
-			void main() {
-				frag_color = vec4(light_color, 1.f);
-			}
-        )";
 
 	// light source cube
 	std::shared_ptr<ShaderProgram> pSP_light_source;
@@ -263,11 +155,8 @@ namespace Engine {
 	std::shared_ptr<Texture2D> p_texture_quads;
 	std::shared_ptr<VertexArray> p_cube_vao;
 
-	// plane
-	std::shared_ptr<VertexBuffer> p_plane_vbo;
-	std::shared_ptr<IndexBuffer> p_plane_ib;
-	std::shared_ptr<VertexArray> p_plane_vao;
-
+	// using new plane class
+	std::shared_ptr<Plane> example_plane;
 
 	float scale[3] = { 1.f, 1.f, 1.f };
 	float rotate = 0.f;
@@ -291,7 +180,7 @@ namespace Engine {
 	}
 
 	int Application::start(unsigned int window_width, unsigned int window_height, const char* title)
-	{
+	{		
 		mpWindow = std::make_shared<Window>(title, window_width, window_height);
 		camera.setViewportSize(static_cast<float>(window_width), static_cast<float>(window_height));
 
@@ -398,14 +287,7 @@ namespace Engine {
 			ShaderDataType::Float3,
 			ShaderDataType::Float2
 		};
-
-		// plane buffers initialization
-		p_plane_vao = std::make_shared<VertexArray>();
-		p_plane_vbo = std::make_shared<VertexBuffer>(plane_norm_uv, sizeof(plane_norm_uv), bufferLayoutVec3Vec3Vec2);
-		p_plane_ib = std::make_shared<IndexBuffer>(indices_plane, sizeof(indices_plane) / sizeof(GLuint));
 		
-		p_plane_vao->addVertexBuffer(p_plane_vbo);
-		p_plane_vao->setIndexBuffer(p_plane_ib);
 		//---------------------------------------//
 
 		// cube buffers initialization
@@ -416,10 +298,12 @@ namespace Engine {
 		p_cube_vao->addVertexBuffer(pPositionsColorsVbo);
 		p_cube_vao->setIndexBuffer(pIndexBuffer);
 		
-		
-		
-		RendererOpenGL::enableDepthBuffer();
+		// Plane example using classes
+		example_plane = std::make_shared<Plane>(glm::vec3(0, 0, 0), 100.f, 100.f);
 
+		RendererOpenGL::enableDepthBuffer();
+		
+		// main cycle
 		while (!mbCloseWindow) {
 			draw();
 		}
@@ -436,6 +320,12 @@ namespace Engine {
 		static int current_frame = 0;
 		RendererOpenGL::setClearColor(mBackgroundColor[0], mBackgroundColor[1], mBackgroundColor[2], mBackgroundColor[3]);
 		RendererOpenGL::clear();
+		
+		// view_projection matrix
+		glm::mat4 view_projection_matrix = camera.getProjectionMatrix() * camera.getViewMatrix();
+
+
+
 		// activating cube shader
 		pSP_cube->bind();
 		pSP_cube->setVec3("camera_position", camera.getPosition());
@@ -467,12 +357,9 @@ namespace Engine {
 
 		// rendering cubes
 		pSP_cube->setMatrix4("model_matrix", modelMatrix);
-		/*static size_t counter = 0;
-		if (counter % 1000 == 0)
-		{
-		}
-		counter++;*/
-		pSP_cube->setMatrix4("view_projection_matrix", camera.getProjectionMatrix() * camera.getViewMatrix());
+
+		pSP_cube->setMatrix4("view_projection_matrix", view_projection_matrix);
+		
 		unsigned int scale = 1;
 		for (const glm::vec3& current_position : positions)
 		{
@@ -491,7 +378,9 @@ namespace Engine {
 			0, 0, 0, 1);
 
 		pSP_cube->setMatrix4("model_matrix", translateMatrix);
-		RendererOpenGL::draw(p_plane_vao);
+		
+		example_plane->draw();
+
 		// rendering light source cube
 		{
 			pSP_light_source->bind();
