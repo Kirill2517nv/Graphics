@@ -10,6 +10,7 @@
 
 #include "EngineCore/Rendering/OpenGL/ShaderContainer.hpp"
 #include "EngineCore/Rendering/OpenGL/Primitives/Plane.hpp"
+#include "EngineCore/Rendering/OpenGL/Primitives/Sphere.hpp"
 
 #include "EngineCore/Modules/UIModule.hpp"
 
@@ -161,6 +162,7 @@ namespace Engine {
 
 	// Example Plane for
 	std::shared_ptr<Plane> example_plane;
+	std::shared_ptr<Sphere> example_sphere;
 
 	float scale[3] = { 1.f, 1.f, 1.f };
 	float rotate = 0.f;
@@ -297,7 +299,7 @@ namespace Engine {
 
 		// material init
 		basic_material = std::make_shared<Material>(ambient_factor, diffuse_factor, specular_factor, shininess);
-		plane_material = std::make_shared<Material>(0.1f*ambient_factor, 0.1f*diffuse_factor, 20 * specular_factor, 20* shininess);
+		plane_material = std::make_shared<Material>(ambient_factor, diffuse_factor, 2* specular_factor, 2* shininess);
 
 		// ---------  delete
 		BufferLayout bufferLayoutVec3Vec3Vec2
@@ -322,6 +324,10 @@ namespace Engine {
 		example_plane = std::make_shared<Plane>(glm::vec3(0, 0, 0), 100.f, 100.f);
 		example_plane->setMaterial(plane_material);
 		example_plane->setShaderProgram(pSP_basic);
+		// Initializing sphere
+		example_sphere = std::make_shared<Sphere>(glm::vec3(10, 0, 2), 1.f);
+		example_sphere->setMaterial(plane_material);
+		example_sphere->setShaderProgram(pSP_basic);
 
 		RendererOpenGL::enableDepthBuffer();
 		
@@ -396,6 +402,11 @@ namespace Engine {
 		example_plane->setLightSourcePosition(glm::vec3(light_source_pos[0], light_source_pos[1], light_source_pos[2]));
 		example_plane->setLightSourceColor(glm::vec3(ls_brightness * light_source_color[0], ls_brightness * light_source_color[1], ls_brightness * light_source_color[2]));
 		example_plane->draw();
+		// rendering sphere
+		example_sphere->setCameraPosition(camera.getCameraPosition());
+		example_sphere->setLightSourcePosition(glm::vec3(light_source_pos[0], light_source_pos[1], light_source_pos[2]));
+		example_sphere->setLightSourceColor(glm::vec3(ls_brightness * light_source_color[0], ls_brightness * light_source_color[1], ls_brightness * light_source_color[2]));
+		example_sphere->draw();
 
 		// rendering light source cube
 		{
