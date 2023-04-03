@@ -57,8 +57,8 @@ namespace Engine {
                 m_normals.push_back(nz);
 
                 // vertex tex coord (s, t) range between [0, 1]
-                s = 10.f*(float)j / m_sectorCount;
-                t = 10.f*(float)i / m_stackCount;
+                s = (float)j / m_sectorCount;
+                t = (float)i / m_stackCount;
                 m_texCoords.push_back(s);
                 m_texCoords.push_back(t);
 

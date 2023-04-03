@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 
 
 #include "EngineCore/Application.h"
@@ -19,7 +20,51 @@
 #include <glm/trigonometric.hpp>
 #include <GLFW/glfw3.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "EngineCore/stb_image.h"
+
+
 namespace Engine {
+	static unsigned int width_earth, height_earth;
+	unsigned char* loadBMP_custom(const char* imagepath) {
+		// Данные, прочитанные из заголовка BMP-файла
+		unsigned char header[54]; // Каждый BMP-файл начинается с заголовка, длиной в 54 байта
+		unsigned int dataPos;     // Смещение данных в файле (позиция данных)
+		unsigned int imageSize;   // Размер изображения = Ширина * Высота * 3
+		// RGB-данные, полученные из файла
+		unsigned char* data;
+		FILE* file = fopen(imagepath, "rb");
+		if (!file) {
+			printf("Изображение не может быть открытоn");
+			return 0;
+		}
+		if (fread(header, 1, 54, file) != 54) { // Если мы прочитали меньше 54 байт, значит возникла проблема
+			printf("Некорректный BMP-файлn");
+			return false;
+		}
+		if (header[0] != 'B' || header[1] != 'M') {
+			printf("Некорректный BMP-файлn");
+			return 0;
+		}
+		// Читаем необходимые данные
+		dataPos = *(int*)&(header[0x0A]); // Смещение данных изображения в файле
+		imageSize = *(int*)&(header[0x22]); // Размер изображения в байтах
+		width_earth = *(int*)&(header[0x12]); // Ширина
+		height_earth = *(int*)&(header[0x16]); // Высота
+		// Некоторые BMP-файлы имеют нулевые поля imageSize и dataPos, поэтому исправим их
+		if (imageSize == 0)    imageSize = width_earth * height_earth * 3; // Ширину * Высоту * 3, где 3 - 3 компоненты цвета (RGB)
+		if (dataPos == 0)      dataPos = 54; // В таком случае, данные будут следовать сразу за заголовком
+		// Создаем буфер
+		data = new unsigned char[imageSize];
+		// Считываем данные из файла в буфер
+		fread(data, 1, imageSize, file);
+
+		// Закрываем файл, так как больше он нам не нужен
+		fclose(file);
+
+		return data;
+	}
+
 
 	const float textScaleS = 10;
 
@@ -158,7 +203,13 @@ namespace Engine {
 	std::shared_ptr<IndexBuffer> pIndexBuffer;
 	std::shared_ptr<Texture2D> p_texture_smile;
 	std::shared_ptr<Texture2D> p_texture_quads;
+	std::shared_ptr<Texture2D> p_texture_earth;
 	std::shared_ptr<VertexArray> p_cube_vao;
+
+	//test texture
+	unsigned char* tex_earth = loadBMP_custom("A:\\GitHub\\Graphics\\Textures\\earth2048.bmp");
+
+
 
 	// Example Plane for
 	std::shared_ptr<Plane> example_plane;
@@ -278,6 +329,9 @@ namespace Engine {
 		generate_quads_texture(data, width, height);
 		p_texture_quads = std::make_shared<Texture2D>(data, width, height);
 		p_texture_quads->bind(1);
+
+		p_texture_earth = std::make_shared<Texture2D>(tex_earth, width_earth, height_earth);
+		p_texture_earth->bind(2);
 
 		delete[] data; // cleaning up texture data
 		

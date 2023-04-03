@@ -9,6 +9,7 @@ set(ENGINE_PUBLIC_INCLUDES
 	includes/EngineCore/Camera.hpp
 	includes/EngineCore/Keys.hpp
 	includes/EngineCore/Input.hpp
+	includes/EngineCore/stb_image.h
 )
 
 set(ENGINE_PRIVATE_INCLUDES
@@ -78,6 +79,8 @@ target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE glad)
 
 add_subdirectory(../external/glm ${CMAKE_CURRENT_BINARY_DIR}/glm)
 target_link_libraries(${ENGINE_PROJECT_NAME} PRIVATE glm)
+
+
 
 
 set(IMGUI_INCLUDES

@@ -17,12 +17,14 @@ namespace Engine {
            
 			out vec2 tex_coord_smile;
 			out vec2 tex_coord_quads;
+			out vec2 tex_coord_earth;
 			out vec3 frag_position;
 			out vec3 frag_normal;
 			
 			void main() {
 				tex_coord_smile = texture_coord;
 				tex_coord_quads = texture_coord; // + vec2(current_frame / 1000.f, current_frame / 1000.f);
+				tex_coord_earth = texture_coord;
 				frag_normal = mat3(transpose(inverse(model_matrix))) * vertex_normal;
 				vec4 vertex_position_world = model_matrix * vec4(vertex_position, 1.0);
 				frag_position = vertex_position_world.xyz;
@@ -34,11 +36,13 @@ namespace Engine {
 		R"(#version 460
 			in vec2 tex_coord_smile;
 			in vec2 tex_coord_quads;
+			in vec2 tex_coord_earth;
 			in vec3 frag_position;
 			in vec3 frag_normal;
 			
 			layout (binding = 0) uniform sampler2D InTexture_Smile;
 			layout (binding = 1) uniform sampler2D InTexture_Quads;
+			layout (binding = 2) uniform sampler2D InTexture_Earth;
 			
 			uniform vec3 camera_position;
 			uniform vec3 light_position;
@@ -67,7 +71,7 @@ namespace Engine {
 				vec3 specular = specular_factor * specular_value * light_color;
 				
 				//frag_color = texture(InTexture_Smile, tex_coord_smile) * texture(InTexture_Quads, tex_coord_quads);
-				frag_color = texture(InTexture_Quads, tex_coord_quads) * vec4((ambient + diffuse + specular) / light_magnitude, 1.f);
+				frag_color = texture(InTexture_Earth, tex_coord_earth) * vec4((ambient + diffuse + specular) / light_magnitude, 1.f);
 			}
         )";
 

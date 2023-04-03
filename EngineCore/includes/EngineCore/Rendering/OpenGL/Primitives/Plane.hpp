@@ -1,6 +1,7 @@
 #pragma once
 #include "PrimitiveObject.hpp"
 
+
 namespace Engine {
 
 	class Plane : public PrimitiveObject {
