@@ -3,10 +3,11 @@
 
 namespace Engine {
 
-	Cube::Cube(const glm::vec3& position, const float& width, const float& lenght) :
+	Cube::Cube(const glm::vec3& position, const float& width, const float& lenght, const float& height) :
 		PrimitiveObject(position),
 		m_width(width),
-		m_lenght(lenght) {
+		m_lenght(lenght),
+		m_height(height) {
 		configureObject();
 
 	}
@@ -44,41 +45,42 @@ namespace Engine {
 			//    position             normal            UV                  index
 
 			// FRONT
-			-1.0f, -1.f, -1.f,     -1.f,  0.f,  0.f,     0.f, 0.f,              // 0
-			-1.0f,  1.f, -1.f,     -1.f,  0.f,  0.f,     1.f, 0.f,              // 1
-			-1.0f,  1.f,  1.f,     -1.f,  0.f,  0.f,     1.f, 1.f,              // 2
-			-1.0f, -1.f,  1.f,     -1.f,  0.f,  0.f,     0.f, 1.f,              // 3
-
-			// BACK                                  
-			 1.0f, -1.f, -1.f,		1.f,  0.f,  0.f,     1.f, 0.f,              // 4
-			 1.0f,  1.f, -1.f,		1.f,  0.f,  0.f,     0.f, 0.f,              // 5
-			 1.0f,  1.f,  1.f,		1.f,  0.f,  0.f,     0.f, 1.f,              // 6
-			 1.0f, -1.f,  1.f,		1.f,  0.f,  0.f,     1.f, 1.f,              // 7
-
-			 // RIGHT
-			 -1.0f,  1.f, -1.f,     0.f,  1.f,  0.f,     0.f, 0.f,              // 8
-			  1.0f,  1.f, -1.f,     0.f,  1.f,  0.f,     1.f, 0.f,              // 9
-			  1.0f,  1.f,  1.f,     0.f,  1.f,  0.f,     1.f, 1.f,              // 10
-			 -1.0f,  1.f,  1.f,     0.f,  1.f,  0.f,     0.f, 1.f,              // 11
-
-			 // LEFT
-			 -1.0f, -1.f, -1.f,     0.f, -1.f,  0.f,     1.f, 0.f,              // 12
-			  1.0f, -1.f, -1.f,     0.f, -1.f,  0.f,     0.f, 0.f,              // 13
-			  1.0f, -1.f,  1.f,     0.f, -1.f,  0.f,     0.f, 1.f,              // 14
-			 -1.0f, -1.f,  1.f,     0.f, -1.f,  0.f,     1.f, 1.f,              // 15
-
-			 // TOP
-			 -1.0f, -1.f,  1.f,     0.f,  0.f,  1.f,     0.f, 0.f,              // 16
-			 -1.0f,  1.f,  1.f,     0.f,  0.f,  1.f,     1.f, 0.f,              // 17
-			  1.0f,  1.f,  1.f,     0.f,  0.f,  1.f,     1.f, 1.f,              // 18
-			  1.0f, -1.f,  1.f,     0.f,  0.f,  1.f,     0.f, 1.f,              // 19
-
-			  // BOTTOM
-			  -1.0f, -1.f, -1.f,    0.f,  0.f, -1.f,     0.f, 1.f,              // 20
-			  -1.0f,  1.f, -1.f,    0.f,  0.f, -1.f,     1.f, 1.f,              // 21
-			   1.0f,  1.f, -1.f,    0.f,  0.f, -1.f,     1.f, 0.f,              // 22
-			   1.0f, -1.f, -1.f,    0.f,  0.f, -1.f,     0.f, 0.f,              // 23
+			-m_width / 2.f, -m_lenght/ 2.f,   -m_height / 2.f,     -1.f,  0.f,  0.f,     0.f, 0.f,              // 0
+			-m_width / 2.f,  m_lenght/ 2.f,   -m_height / 2.f,     -1.f,  0.f,  0.f,     1.f, 0.f,              // 1
+			-m_width / 2.f,  m_lenght/ 2.f,    m_height / 2.f,     -1.f,  0.f,  0.f,     1.f, 1.f,              // 2
+			-m_width / 2.f, -m_lenght/ 2.f,    m_height / 2.f,     -1.f,  0.f,  0.f,     0.f, 1.f,              // 3
+											   
+			// BACK                            
+			 m_width / 2.f, -m_lenght/ 2.f,   -m_height / 2.f,		1.f,  0.f,  0.f,     1.f, 0.f,              // 4
+			 m_width / 2.f,  m_lenght/ 2.f,   -m_height / 2.f,		1.f,  0.f,  0.f,     0.f, 0.f,              // 5
+			 m_width / 2.f,  m_lenght/ 2.f,    m_height / 2.f,		1.f,  0.f,  0.f,     0.f, 1.f,              // 6
+			 m_width / 2.f, -m_lenght/ 2.f,    m_height / 2.f,		1.f,  0.f,  0.f,     1.f, 1.f,              // 7
+											   
+			 // RIGHT						   
+			 -m_width / 2.f,  m_lenght/ 2.f,  -m_height / 2.f,     0.f,  1.f,  0.f,     0.f, 0.f,              // 8
+			  m_width / 2.f,  m_lenght/ 2.f,  -m_height / 2.f,     0.f,  1.f,  0.f,     1.f, 0.f,              // 9
+			  m_width / 2.f,  m_lenght/ 2.f,   m_height / 2.f,     0.f,  1.f,  0.f,     1.f, 1.f,              // 10
+			 -m_width / 2.f,  m_lenght/ 2.f,   m_height / 2.f,     0.f,  1.f,  0.f,     0.f, 1.f,              // 11
+											   
+			 // LEFT			   
+			 -m_width / 2.f, -m_lenght/ 2.f,  -m_height / 2.f,     0.f, -1.f,  0.f,     1.f, 0.f,              // 12
+			  m_width / 2.f, -m_lenght/ 2.f,  -m_height / 2.f,     0.f, -1.f,  0.f,     0.f, 0.f,              // 13
+			  m_width / 2.f, -m_lenght/ 2.f,   m_height / 2.f,     0.f, -1.f,  0.f,     0.f, 1.f,              // 14
+			 -m_width / 2.f, -m_lenght/ 2.f,   m_height / 2.f,     0.f, -1.f,  0.f,     1.f, 1.f,              // 15
+											   
+			 // TOP							   
+			 -m_width / 2.f, -m_lenght/ 2.f,   m_height / 2.f,     0.f,  0.f,  1.f,     0.f, 0.f,              // 16
+			 -m_width / 2.f,  m_lenght/ 2.f,   m_height / 2.f,     0.f,  0.f,  1.f,     1.f, 0.f,              // 17
+			  m_width / 2.f,  m_lenght/ 2.f,   m_height / 2.f,     0.f,  0.f,  1.f,     1.f, 1.f,              // 18
+			  m_width / 2.f, -m_lenght/ 2.f,   m_height / 2.f,     0.f,  0.f,  1.f,     0.f, 1.f,              // 19
+											   
+			  // BOTTOM						   
+			  -m_width / 2.f, -m_lenght/ 2.f, -m_height / 2.f,    0.f,  0.f, -1.f,     0.f, 1.f,              // 20
+			  -m_width / 2.f,  m_lenght/ 2.f, -m_height / 2.f,    0.f,  0.f, -1.f,     1.f, 1.f,              // 21
+			   m_width / 2.f,  m_lenght/ 2.f, -m_height / 2.f,    0.f,  0.f, -1.f,     1.f, 0.f,              // 22
+			   m_width / 2.f, -m_lenght/ 2.f, -m_height / 2.f,    0.f,  0.f, -1.f,     0.f, 0.f,              // 23
 		};
+
 		// cube indices
 		unsigned int indices[] = {
 			0,   1,  2,  2,  3,  0, // front

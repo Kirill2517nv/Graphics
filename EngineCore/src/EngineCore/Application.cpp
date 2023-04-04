@@ -11,6 +11,7 @@
 #include "EngineCore/Rendering/OpenGL/ShaderContainer.hpp"
 #include "EngineCore/Rendering/OpenGL/Primitives/Plane.hpp"
 #include "EngineCore/Rendering/OpenGL/Primitives/Sphere.hpp"
+#include "EngineCore/Rendering/OpenGL/Primitives/Cube.hpp"
 
 #include "EngineCore/Modules/UIModule.hpp"
 
@@ -22,55 +23,6 @@
 namespace Engine {
 
 	const float textScaleS = 10;
-
-	float pos_norm_uv[] = {
-		//    position             normal            UV                  index
-
-		// FRONT
-		-1.0f, -1.f, -1.f,     -1.f,  0.f,  0.f,     0.f, 0.f,              // 0
-		-1.0f,  1.f, -1.f,     -1.f,  0.f,  0.f,     1.f, 0.f,              // 1
-		-1.0f,  1.f,  1.f,     -1.f,  0.f,  0.f,     1.f, 1.f,              // 2
-		-1.0f, -1.f,  1.f,     -1.f,  0.f,  0.f,     0.f, 1.f,              // 3
-
-		// BACK                                  
-		 1.0f, -1.f, -1.f,		1.f,  0.f,  0.f,     1.f, 0.f,              // 4
-		 1.0f,  1.f, -1.f,		1.f,  0.f,  0.f,     0.f, 0.f,              // 5
-		 1.0f,  1.f,  1.f,		1.f,  0.f,  0.f,     0.f, 1.f,              // 6
-		 1.0f, -1.f,  1.f,		1.f,  0.f,  0.f,     1.f, 1.f,              // 7
-
-		 // RIGHT
-		 -1.0f,  1.f, -1.f,     0.f,  1.f,  0.f,     0.f, 0.f,              // 8
-		  1.0f,  1.f, -1.f,     0.f,  1.f,  0.f,     1.f, 0.f,              // 9
-		  1.0f,  1.f,  1.f,     0.f,  1.f,  0.f,     1.f, 1.f,              // 10
-		 -1.0f,  1.f,  1.f,     0.f,  1.f,  0.f,     0.f, 1.f,              // 11
-
-		 // LEFT
-		 -1.0f, -1.f, -1.f,     0.f, -1.f,  0.f,     1.f, 0.f,              // 12
-		  1.0f, -1.f, -1.f,     0.f, -1.f,  0.f,     0.f, 0.f,              // 13
-		  1.0f, -1.f,  1.f,     0.f, -1.f,  0.f,     0.f, 1.f,              // 14
-		 -1.0f, -1.f,  1.f,     0.f, -1.f,  0.f,     1.f, 1.f,              // 15
-
-		 // TOP
-		 -1.0f, -1.f,  1.f,     0.f,  0.f,  1.f,     0.f, 0.f,              // 16
-		 -1.0f,  1.f,  1.f,     0.f,  0.f,  1.f,     1.f, 0.f,              // 17
-		  1.0f,  1.f,  1.f,     0.f,  0.f,  1.f,     1.f, 1.f,              // 18
-		  1.0f, -1.f,  1.f,     0.f,  0.f,  1.f,     0.f, 1.f,              // 19
-
-		  // BOTTOM
-		  -1.0f, -1.f, -1.f,    0.f,  0.f, -1.f,     0.f, 1.f,              // 20
-		  -1.0f,  1.f, -1.f,    0.f,  0.f, -1.f,     1.f, 1.f,              // 21
-		   1.0f,  1.f, -1.f,    0.f,  0.f, -1.f,     1.f, 0.f,              // 22
-		   1.0f, -1.f, -1.f,    0.f,  0.f, -1.f,     0.f, 0.f,              // 23
-	};
-	// cube indices
-	unsigned int indices[] = {
-		0,   1,  2,  2,  3,  0, // front
-		4,   5,  6,  6,  7,  4, // back
-		8,   9, 10, 10, 11,  8, // right
-		12, 13, 14, 14, 15, 12, // left
-		16, 17, 18, 18, 19, 16, // top
-		20, 21, 22, 22, 23, 20  // bottom
-	};
 
 	//------------------------- TEST FUNCTIONS FOR SIMPLE TEXTURE GENERATION --------------//
 	void generate_circle(unsigned char* data,
@@ -145,23 +97,25 @@ namespace Engine {
 	}
 	//---------------------------------------//
 
-	
+	// shaders example
 	std::shared_ptr<ShaderProgram> pSP_light_source; // light source shader
 	std::shared_ptr<ShaderProgram> pSP_basic; // basic shader with simple lightning
 	
-	// materials
+	// materials example
 	std::shared_ptr<Material> basic_material;
 	std::shared_ptr<Material> plane_material;
-
-	// cube
-	std::shared_ptr<VertexBuffer> pPositionsColorsVbo;
-	std::shared_ptr<IndexBuffer> pIndexBuffer;
+	
+	// textures example
 	std::shared_ptr<Texture2D> p_texture_smile;
 	std::shared_ptr<Texture2D> p_texture_quads;
-	std::shared_ptr<VertexArray> p_cube_vao;
 
-	// Example Plane for
+	// cube example
+	std::shared_ptr<Cube> example_cube;
+
+	// plane example
 	std::shared_ptr<Plane> example_plane;
+	
+	// sphere example
 	std::shared_ptr<Sphere> example_sphere;
 
 	float scale[3] = { 1.f, 1.f, 1.f };
@@ -301,29 +255,25 @@ namespace Engine {
 		basic_material = std::make_shared<Material>(ambient_factor, diffuse_factor, specular_factor, shininess);
 		plane_material = std::make_shared<Material>(ambient_factor, diffuse_factor, 2* specular_factor, 2* shininess);
 
-		// ---------  delete
+		// ---------  delete --------- //
 		BufferLayout bufferLayoutVec3Vec3Vec2
 		{
 			ShaderDataType::Float3,
 			ShaderDataType::Float3,
 			ShaderDataType::Float2
 		};
+		// --------------------------- //
 		
-		//---------------------------------------//
+		// Initializing cube
+		example_cube = std::make_shared<Cube>(glm::vec3(0, 0, 0), 1, 1, 1);
+		example_cube->setMaterial(plane_material);
+		example_cube->setShaderProgram(pSP_basic);
 
-		// cube buffers initialization
-		p_cube_vao = std::make_shared<VertexArray>();
-		pPositionsColorsVbo = std::make_shared<VertexBuffer>(pos_norm_uv, sizeof(pos_norm_uv), bufferLayoutVec3Vec3Vec2);
-		pIndexBuffer = std::make_shared<IndexBuffer>(indices, sizeof(indices) / sizeof(GLuint));
-
-		p_cube_vao->addVertexBuffer(pPositionsColorsVbo);
-		p_cube_vao->setIndexBuffer(pIndexBuffer);
-		//---------------------------------------//
-		
 		// Initializing plane
 		example_plane = std::make_shared<Plane>(glm::vec3(0, 0, 0), 100.f, 100.f);
 		example_plane->setMaterial(plane_material);
 		example_plane->setShaderProgram(pSP_basic);
+
 		// Initializing sphere
 		example_sphere = std::make_shared<Sphere>(glm::vec3(10, 0, 2), 1.f);
 		example_sphere->setMaterial(plane_material);
@@ -354,6 +304,9 @@ namespace Engine {
 
 		// activating basic shader
 		pSP_basic->bind();
+
+		pSP_basic->setMatrix4("view_projection_matrix", view_projection_matrix);
+
 		pSP_basic->setVec3("camera_position", camera.getPosition());
 		pSP_basic->setVec3("light_position", glm::vec3(light_source_pos[0], light_source_pos[1], light_source_pos[2]));
 		pSP_basic->setVec3("light_color", glm::vec3(ls_brightness * light_source_color[0], ls_brightness * light_source_color[1], ls_brightness * light_source_color[2]));
@@ -382,9 +335,11 @@ namespace Engine {
 		
 
 		// rendering cubes
-		pSP_basic->setMatrix4("model_matrix", modelMatrix);
-
-		pSP_basic->setMatrix4("view_projection_matrix", view_projection_matrix);
+		example_cube->setModelMatrix(modelMatrix);
+		
+		example_cube->setCameraPosition(camera.getCameraPosition());
+		example_cube->setLightSourcePosition(glm::vec3(light_source_pos[0], light_source_pos[1], light_source_pos[2]));
+		example_cube->setLightSourceColor(glm::vec3(ls_brightness * light_source_color[0], ls_brightness * light_source_color[1], ls_brightness * light_source_color[2]));
 		
 		unsigned int scale = 1;
 		for (const glm::vec3& current_position : positions)
@@ -393,10 +348,13 @@ namespace Engine {
 				0, scale, 0, 0,
 				0, 0, scale , 0,
 				current_position[0] * scale, current_position[1] * scale, current_position[2] * scale, 1);
-			pSP_basic->setMatrix4("model_matrix", translate_matrix);
-			RendererOpenGL::draw(p_cube_vao);
-			scale*=2;
+			example_cube->setModelMatrix(translate_matrix);
+
+
+			example_cube->draw();
+			scale *= 2;
 		}
+
 		// rendering plane
 		example_plane->setCameraPosition(camera.getCameraPosition());
 		example_plane->setLightSourcePosition(glm::vec3(light_source_pos[0], light_source_pos[1], light_source_pos[2]));
@@ -418,7 +376,7 @@ namespace Engine {
 				light_source_pos[0], light_source_pos[1], light_source_pos[2], 1);
 			pSP_light_source->setMatrix4("model_matrix", translate_matrix);
 			pSP_light_source->setVec3("light_color", glm::vec3(light_source_color[0], light_source_color[1], light_source_color[2]));
-			RendererOpenGL::draw(p_cube_vao);
+			example_cube->draw();
 		}
 
 		UIModule::onUiDrawBegin();
