@@ -17,6 +17,7 @@ namespace Engine {
 	}
 
 	void PrimitiveObject::setShaderProgram(const std::shared_ptr<ShaderProgram>& new_shader_program) {
+		m_sp->unbind();
 		m_sp = new_shader_program;
 	}
 

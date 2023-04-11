@@ -254,15 +254,6 @@ namespace Engine {
 		// material init
 		basic_material = std::make_shared<Material>(ambient_factor, diffuse_factor, specular_factor, shininess);
 		plane_material = std::make_shared<Material>(ambient_factor, diffuse_factor, 2* specular_factor, 2* shininess);
-
-		// ---------  delete --------- //
-		BufferLayout bufferLayoutVec3Vec3Vec2
-		{
-			ShaderDataType::Float3,
-			ShaderDataType::Float3,
-			ShaderDataType::Float2
-		};
-		// --------------------------- //
 		
 		// Initializing cube
 		example_cube = std::make_shared<Cube>(glm::vec3(0, 0, 0), 1, 1, 1);
@@ -304,16 +295,13 @@ namespace Engine {
 
 		// activating basic shader
 		pSP_basic->bind();
-
+		// set view projection matrix for basic shader
 		pSP_basic->setMatrix4("view_projection_matrix", view_projection_matrix);
-
+		// set camera position for basic shader
 		pSP_basic->setVec3("camera_position", camera.getPosition());
+		// set light source params for basic shader
 		pSP_basic->setVec3("light_position", glm::vec3(light_source_pos[0], light_source_pos[1], light_source_pos[2]));
 		pSP_basic->setVec3("light_color", glm::vec3(ls_brightness * light_source_color[0], ls_brightness * light_source_color[1], ls_brightness * light_source_color[2]));
-		pSP_basic->setFloat("ambient_factor", ambient_factor);
-		pSP_basic->setFloat("diffuse_factor", diffuse_factor);
-		pSP_basic->setFloat("specular_factor", specular_factor);
-		pSP_basic->setFloat("shininess", shininess);
 		
 		/*glm::mat4 scaleMatrix(scale[0], 0, 0, 0,
 			0, scale[1], 0, 0,
@@ -335,12 +323,8 @@ namespace Engine {
 		
 
 		// rendering cubes
+
 		example_cube->setModelMatrix(modelMatrix);
-		
-		example_cube->setCameraPosition(camera.getCameraPosition());
-		example_cube->setLightSourcePosition(glm::vec3(light_source_pos[0], light_source_pos[1], light_source_pos[2]));
-		example_cube->setLightSourceColor(glm::vec3(ls_brightness * light_source_color[0], ls_brightness * light_source_color[1], ls_brightness * light_source_color[2]));
-		
 		unsigned int scale = 1;
 		for (const glm::vec3& current_position : positions)
 		{
@@ -348,34 +332,38 @@ namespace Engine {
 				0, scale, 0, 0,
 				0, 0, scale , 0,
 				current_position[0] * scale, current_position[1] * scale, current_position[2] * scale, 1);
+			// set new position for a cube
 			example_cube->setModelMatrix(translate_matrix);
-
-
-			example_cube->draw();
+			if (scale == 4) {
+				auto mat = std::make_shared<Material>(0.0, 0.0, 0.0, 1.0);
+				example_cube->setMaterial(mat);
+				example_cube->draw();
+			}
+			else
+			{
+				// render cube
+				example_cube->setMaterial(basic_material);
+				example_cube->draw();
+			}
 			scale *= 2;
 		}
 
 		// rendering plane
-		example_plane->setCameraPosition(camera.getCameraPosition());
-		example_plane->setLightSourcePosition(glm::vec3(light_source_pos[0], light_source_pos[1], light_source_pos[2]));
-		example_plane->setLightSourceColor(glm::vec3(ls_brightness * light_source_color[0], ls_brightness * light_source_color[1], ls_brightness * light_source_color[2]));
 		example_plane->draw();
 		// rendering sphere
-		example_sphere->setCameraPosition(camera.getCameraPosition());
-		example_sphere->setLightSourcePosition(glm::vec3(light_source_pos[0], light_source_pos[1], light_source_pos[2]));
-		example_sphere->setLightSourceColor(glm::vec3(ls_brightness * light_source_color[0], ls_brightness * light_source_color[1], ls_brightness * light_source_color[2]));
 		example_sphere->draw();
 
 		// rendering light source cube
 		{
+			example_cube->setShaderProgram(pSP_light_source);
 			pSP_light_source->bind();
 			pSP_light_source->setMatrix4("view_projection_matrix", camera.getProjectionMatrix() * camera.getViewMatrix());
+			pSP_light_source->setVec3("light_color", glm::vec3(light_source_color[0], light_source_color[1], light_source_color[2]));
 			glm::mat4 translate_matrix(1, 0, 0, 0,
 				0, 1, 0, 0,
 				0, 0, 1, 0,
 				light_source_pos[0], light_source_pos[1], light_source_pos[2], 1);
-			pSP_light_source->setMatrix4("model_matrix", translate_matrix);
-			pSP_light_source->setVec3("light_color", glm::vec3(light_source_color[0], light_source_color[1], light_source_color[2]));
+			example_cube->setModelMatrix(translate_matrix);
 			example_cube->draw();
 		}
 

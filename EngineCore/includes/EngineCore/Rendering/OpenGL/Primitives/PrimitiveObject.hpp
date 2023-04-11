@@ -42,7 +42,7 @@ namespace Engine {
 		std::shared_ptr<VertexBuffer> m_vbo = nullptr;
 		std::shared_ptr<IndexBuffer> m_ib = nullptr;
 		std::shared_ptr<ShaderProgram> m_sp = nullptr;
-		std::shared_ptr<Material> m_material;
+		std::shared_ptr<Material> m_material = nullptr;
 		glm::vec3 m_light_source_position = { 0.f, 0.f, 0.f };
 		glm::vec3 m_light_source_color = { 1.f, 1.f, 1.f };
 		glm::vec3 m_camera_position = { 0.f, 0.f, 0.f };

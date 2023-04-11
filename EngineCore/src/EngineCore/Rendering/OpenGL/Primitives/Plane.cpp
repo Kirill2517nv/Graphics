@@ -17,9 +17,6 @@ namespace Engine {
 			if (m_sp != nullptr) {
 				m_sp->bind();
 				m_sp->setMatrix4("model_matrix", m_model_matrix);
-				m_sp->setVec3("camera_position", m_camera_position);
-				m_sp->setVec3("light_position", m_light_source_position);
-				m_sp->setVec3("light_color", m_light_source_color);
 				// set material to shader
 				m_sp->setFloat("ambient_factor", m_material->m_ambient_factor);
 				m_sp->setFloat("diffuse_factor", m_material->m_diffuse_factor);
