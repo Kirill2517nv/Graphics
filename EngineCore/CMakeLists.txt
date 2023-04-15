@@ -10,6 +10,7 @@ set(ENGINE_PUBLIC_INCLUDES
 	includes/EngineCore/Keys.hpp
 	includes/EngineCore/Input.hpp
 	includes/EngineCore/stb_image.h
+	includes/EngineCore/ResourceManager.hpp
 )
 
 set(ENGINE_PRIVATE_INCLUDES
@@ -30,6 +31,7 @@ set(ENGINE_PRIVATE_INCLUDES
 )
 
 set(ENGINE_PRIVATE_SOURCES
+	src/EngineCore/ResourceManager.cpp
 	src/EngineCore/Application.cpp
 	src/EngineCore/Window.cpp
 	src/EngineCore/Input.cpp

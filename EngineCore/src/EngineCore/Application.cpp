@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <string>
 
 
 #include "EngineCore/Application.h"
@@ -7,6 +8,7 @@
 #include "EngineCore/Window.h"
 #include "EngineCore/Event.hpp"
 #include "EngineCore/Input.hpp"
+#include "EngineCore/ResourceManager.hpp"
 
 
 #include "EngineCore/Rendering/OpenGL/ShaderContainer.hpp"
@@ -20,50 +22,24 @@
 #include <glm/trigonometric.hpp>
 #include <GLFW/glfw3.h>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "EngineCore/stb_image.h"
+
 
 
 namespace Engine {
-	static unsigned int width_earth, height_earth;
-	unsigned char* loadBMP_custom(const char* imagepath) {
-		// Данные, прочитанные из заголовка BMP-файла
-		unsigned char header[54]; // Каждый BMP-файл начинается с заголовка, длиной в 54 байта
-		unsigned int dataPos;     // Смещение данных в файле (позиция данных)
-		unsigned int imageSize;   // Размер изображения = Ширина * Высота * 3
-		// RGB-данные, полученные из файла
-		unsigned char* data;
-		FILE* file = fopen(imagepath, "rb");
-		if (!file) {
-			printf("Изображение не может быть открытоn");
-			return 0;
-		}
-		if (fread(header, 1, 54, file) != 54) { // Если мы прочитали меньше 54 байт, значит возникла проблема
-			printf("Некорректный BMP-файлn");
-			return false;
-		}
-		if (header[0] != 'B' || header[1] != 'M') {
-			printf("Некорректный BMP-файлn");
-			return 0;
-		}
-		// Читаем необходимые данные
-		dataPos = *(int*)&(header[0x0A]); // Смещение данных изображения в файле
-		imageSize = *(int*)&(header[0x22]); // Размер изображения в байтах
-		width_earth = *(int*)&(header[0x12]); // Ширина
-		height_earth = *(int*)&(header[0x16]); // Высота
-		// Некоторые BMP-файлы имеют нулевые поля imageSize и dataPos, поэтому исправим их
-		if (imageSize == 0)    imageSize = width_earth * height_earth * 3; // Ширину * Высоту * 3, где 3 - 3 компоненты цвета (RGB)
-		if (dataPos == 0)      dataPos = 54; // В таком случае, данные будут следовать сразу за заголовком
-		// Создаем буфер
-		data = new unsigned char[imageSize];
-		// Считываем данные из файла в буфер
-		fread(data, 1, imageSize, file);
+	int iw, ih, n;
+	//unsigned char* load_tex() {
+	//	std::string inputPath = "A:\\GitHub\\Graphics\\res\\textures\\earth2048.bmp";
 
-		// Закрываем файл, так как больше он нам не нужен
-		fclose(file);
+	//	// Загружаем изображение, чтобы получить информацию о ширине, высоте и цветовом канале
+	//	stbi_uc* idata = stbi_load(inputPath.c_str(), &iw, &ih, &n, 0);
 
-		return data;
-	}
+	//	std::cout << "n = " << n << std::endl;
+	//	if (!idata) {
+	//		LOG_CRITICAL("failed to load texture image!");
+	//	}
+	//	return idata;
+	//}
+	
 
 
 	const float textScaleS = 10;
@@ -207,8 +183,8 @@ namespace Engine {
 	std::shared_ptr<VertexArray> p_cube_vao;
 
 	//test texture
-	unsigned char* tex_earth = loadBMP_custom("A:\\GitHub\\Graphics\\Textures\\earth2048.bmp");
-
+	//unsigned char* tex_earth = loadBMP_custom("A:\\GitHub\\Graphics\\Textures\\earth2048.bmp");
+	//unsigned char* tex_earth = load_tex();
 
 
 	// Example Plane for
@@ -239,6 +215,7 @@ namespace Engine {
 
 	int Application::start(unsigned int window_width, unsigned int window_height, const char* title)
 	{	
+		ResourceManager::setExecutablePath("A:\\GitHub\\Graphics\\build\\bin\\Debug\\");
 		// making a window
 		mpWindow = std::make_shared<Window>(title, window_width, window_height);
 		// setting up a camera viewport
@@ -330,7 +307,8 @@ namespace Engine {
 		p_texture_quads = std::make_shared<Texture2D>(data, width, height);
 		p_texture_quads->bind(1);
 
-		p_texture_earth = std::make_shared<Texture2D>(tex_earth, width_earth, height_earth);
+		//p_texture_earth = std::make_shared<Texture2D>(tex_earth, iw, ih);
+		p_texture_earth = ResourceManager::loadTexture("Earth","res\\textures\\earth2048.bmp");
 		p_texture_earth->bind(2);
 
 		delete[] data; // cleaning up texture data
@@ -338,7 +316,8 @@ namespace Engine {
 		// Compiling shader programs
 		
 		// basic shader program with simple lighning
-		pSP_basic = std::make_shared<ShaderProgram>(Shaders::VERTEX_SHADER_WITH_BASIC_LIGHTNING, Shaders::FRAGMENT_SHADER_WITH_BASIC_LIGHTNING);
+		//pSP_basic = std::make_shared<ShaderProgram>(Shaders::VERTEX_SHADER_WITH_BASIC_LIGHTNING, Shaders::FRAGMENT_SHADER_WITH_BASIC_LIGHTNING);
+		pSP_basic = ResourceManager::loadShaders("Default", "res\\shaders\\vertex.txt", "res\\shaders\\fragment.txt");
 		if (!pSP_basic->isCompiled())
 		{
 			return false;
@@ -389,6 +368,8 @@ namespace Engine {
 		while (!mbCloseWindow) {
 			draw();
 		}
+
+		ResourceManager::unloadAllResources();
 		mpWindow = nullptr;
 
 		return 0;

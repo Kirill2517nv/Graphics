@@ -13,7 +13,7 @@ namespace Engine
         glCreateTextures(GL_TEXTURE_2D, 1, &m_id);
         const GLsizei mip_levels = static_cast<GLsizei>(std::log2(std::max(m_width, m_height))) + 1;
         glTextureStorage2D(m_id, mip_levels, GL_RGB8, m_width, m_height);
-        glTextureSubImage2D(m_id, 0, 0, 0, m_width, m_height, GL_BGR, GL_UNSIGNED_BYTE, data);
+        glTextureSubImage2D(m_id, 0, 0, 0, m_width, m_height, GL_RGB, GL_UNSIGNED_BYTE, data);
         // texture filling mode (S - x-asis, T - y-axis)
         glTextureParameteri(m_id, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTextureParameteri(m_id, GL_TEXTURE_WRAP_T, GL_REPEAT);

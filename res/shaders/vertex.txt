@@ -1,0 +1,24 @@
+#version 460
+layout(location = 0) in vec3 vertex_position;
+layout(location = 1) in vec3 vertex_normal;
+layout(location = 2) in vec2 texture_coord;
+
+uniform mat4 model_matrix;
+uniform mat4 view_projection_matrix;
+uniform int current_frame; 
+
+out vec2 tex_coord_smile;
+out vec2 tex_coord_quads;
+out vec2 tex_coord_earth;
+out vec3 frag_position;
+out vec3 frag_normal;
+
+void main() {
+	tex_coord_smile = texture_coord;
+	tex_coord_quads = texture_coord; // + vec2(current_frame / 1000.f, current_frame / 1000.f);
+	tex_coord_earth = texture_coord;
+	frag_normal = mat3(transpose(inverse(model_matrix))) * vertex_normal;
+	vec4 vertex_position_world = model_matrix * vec4(vertex_position, 1.0);
+	frag_position = vertex_position_world.xyz;
+	gl_Position = view_projection_matrix * vertex_position_world;
+}

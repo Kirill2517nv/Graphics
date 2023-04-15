@@ -185,7 +185,7 @@ class EngineEditor : public Engine::Application {
 	int frame = 0;
 };
 
-int main()
+int main(int argc, char** argv)
 {
 	auto pEngineEditor = std::make_shared<EngineEditor>();
 
